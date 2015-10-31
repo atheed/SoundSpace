@@ -57,7 +57,7 @@ http.createServer(function(request, response) {
       response.end();
     });
     //All implementation for playlist/song handling requests here
-  } else if(request.url == "getPlaylist"){
+  } else if(request.url == "/getPlaylist"){
       fs.readFile('playlist.json', "binary", function(err, data) {
             if (err) {
                 response.writeHead(500, {
