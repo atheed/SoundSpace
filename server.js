@@ -7,33 +7,54 @@ var playedSongs = [];
 var options = {
     root: __dirname
 }
+var currentSong;
+var currentPlayListName;
 
 app.use(express.static(__dirname + '/static'));
+app.use(bodyParser.json());
 
-//todo: implement
-app.post('/createNewPlayList', function (request, response) {
+//todo: implement placeholder functions once dynamic playlist works
+app.put('/createNewPlayList', function (request, response) {
     console.log('creating playlist');
+    currentPlayListName = getPlayListName(response.body);
+    response.status(201);
     response.end();
 });
 
-//todo: implement
+//todo: implement placeholder functions once dynamic playlist works
 app.post('/addSongToPlaylist', function (request, response) {
-    console.log('adding son to playlist');
+    console.log('adding song to playlist');
+    upcomingSongs.push(response.body);
+    response.status(201);
     response.end();
 });
 
-//todo: implement
+//todo: implement placeholder functions once dynamic playlist works
 app.post('/removeSongFromPlaylist', function (request, response) {
     console.log('removing song from playlist');
+    upcomingSongs.splice(getIndex(response.body), 1);
     response.end();
 });
 
-//todo: implement
 app.get('/currentSong', function (request, response) {
     console.log('retrieving current song information');
+    response.status(200);
+    response.set({
+        'Content-Type': 'text/json',
+    });
+    response.json(currentSong);
     response.end();
 });
 
+app.get('/nextSong', function (request, response) {
+    console.log('retrieving next song on the play list');
+    playedSongs.push(currentSong);
+    currentSong = upcomingSongs.pop();
+    response.json(currentSong);
+    response.end();
+});
+
+//todo: implement dynamic playlist
 app.get('/currentPlaylist', function (request, response) {
     console.log('retrieving current playlist information');
     fs.readFile('playlist.json', "binary", function (err, data) {
@@ -50,9 +71,8 @@ app.get('/currentPlaylist', function (request, response) {
         response.set({
             'Content-Type': 'text/json',
         });
-        response.send(data);
+        response.json(data);
         response.end();
-
     });
 });
 
@@ -60,3 +80,11 @@ var server = app.listen(3000, function () {
     var host = server.address().address;
     var port = server.address().port;
 });
+
+var getPlayListName = function (body) {
+    return null;
+}
+
+var getIndex = function (body) {
+    return null;
+}
