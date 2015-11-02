@@ -6,7 +6,7 @@ $(window).ready(function() {
         reader.onload = (function(theFile) {
             return function(e) {
                 $("audio").remove();
-                $("body").append("<audio controls></audio>");
+                $(".first").after("<audio controls></audio>");
                 $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
                 $("audio").append("Your browser does not support this music player.");
             };
