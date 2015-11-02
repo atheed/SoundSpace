@@ -46,6 +46,8 @@ Unable to reach a metaphor that would feel natural and seemless, the group chose
   
   Similarly, since there was initially no clear definition of the tasks, nor a clear understanding of how implementation would be handled, most of the work done by individual members were about structuring and less about individual clear tasks. Most of these tasks that could be identified were done by multiple members, with plenty of offered versions discarded later on. The team attempted to use the issues for these tasks accomplished, but were not highly successful, as most work was not tangible and clearly definable by a small task. We're unable to provide an individual burndown chart for each member, but below is a list of individual progress that contributed to the team burndown chart above:
   
+  For further information on individual progress, see commit history:
+  
   **Colliflower:**
 - Implemented a basic UI for the project.
 - Created an audio player for a static source on the computer.
