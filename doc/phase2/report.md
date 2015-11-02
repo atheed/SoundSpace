@@ -42,6 +42,43 @@ Unable to reach a metaphor that would feel natural and seemless, the group chose
     The group reported in with an assesment of the progress on the individually selected tasks, identifying challenges and identifying the next set of tasks that would be undertaken. The requirements for the demo was discussed. Available written libraries that would benefit the group with highly relevant content were mentioned, noted and their links stickied in the group Slack. 
 
 ##Burndown Chart
+  The team has done 4 meetings, and throughout these meetings, backlog was formed and changed drastically. So, the work axis of any burndown chart at this stage is highly volatile, as it changes with every iteration. Considering Small tasks a workload value of 1, Medium taks 3, Large tasks 5, the group summed up the entire project as a workload of 61. Using this latest version of the backlog to reflect on the previous work, which caused skewing, a team burndown chart has been created and can be seen [here](http://i.imgur.com/AEZihCH.jpg). Keep in mind that as there was no clear goal for the demo, the "Expected" guidance line has very little meaning other than to illustrate the initial delay in accomplishing tasks. 
+  
+  Similarly, since there was initially no clear definition of the tasks, nor a clear understanding of how implementation would be handled, most of the work done by individual members were about structuring and less about individual clear tasks. Most of these tasks that could be identified were done by multiple members, with plenty of offered versions discarded later on. The team attempted to use the issues for these tasks accomplished, but were not highly successful, as most work was not tangible and clearly definable by a small task. We're unable to provide an individual burndown chart for each member, but below is a list of individual progress that contributed to the team burndown chart above:
+  
+  **Colliflower:**
+- Implemented a basic UI for the project.
+- Created an audio player for a static source on the computer.
+- Implemented a method of loading a file from the computer.
+- Implemented a way to refresh the audio player for a selected song.
+- Created a basic node.js server to serve static files for testing the audio player.
+
+**Atheed:**
+- Created the template for the playlist page (which will eventually hold the currently playing song, the queue of upcoming songs, and a way to add/suggest songs)
+- Built the playlist-queue view for this page. That is, parsed the playlist.json file, got the relevant information of each song to be played, and populated the page with these songs (and their details) in an easy-to-read way
+- Created dynamic upvote/downvote buttons for each song on the playlist, which can be used to eventually propagate the votes on to the actual ordering of the song
+- Helped build the general look and feel of the first phase of the UI, and the general client-side flow of the product
+
+**Orangehop:**
+- wrote node.js server in express to serve static files
+- implemented /currentPlayList rest call
+- implemented /nextSong rest call
+- implemented /currentSong rest call
+- implemented /removeSongFromPlayList, /addSongtoPlaylist, and /createNewPlayList rest call with place holder functions -> need to implement further once we support dynamic playlist
+
+**icabala:**
+- Helped design the initial features as well as looks of the first UI prototype
+- Created a simple mock up of the "Create a Page" part of the UI
+- Designed the initial "landing page" of the UI
+
+**mcey:**
+- Assisted the design categories choice, created initial empty files
+- Reviewed and edited the earlier version of the server, made syntax corrections
+- Wrote a getPlaylist request in front-end, and handling for the request in backend (this was later discarded for express server)
+- Drafted the playlist JSON object
+- Wrote the phase 2 report
+
+
 
 ##Review&Retrospective
 
