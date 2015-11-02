@@ -44,3 +44,23 @@ Unable to reach a metaphor that would feel natural and seemless, the group chose
 ##Burndown Chart
 
 ##Review&Retrospective
+
+The groups plan evolved in a cyclical way, where tasks would be introduced, and members would go back and revisit the tasks to either redefine it more clearly, or split it into multiple tasks. Although the project had clear requirements that were all agreed upon, members did not initially have a clear view of how it would be implemented step by step. Every task that was undertaken brought forth more design decisions, which lead to changes in the backlog and tasks.So at this point, there isn't a clear way of presenting a burndown chart without constantly changing Y axes.
+
+No taks that were decided to be put on the backlog were abandoned. Some tasks were decided to be less crucial than others for the MVP, and therefore were assigned a low priorty status. Some examples given above for these are: Fetching Music off Youtube, Round-robin voting, and user management.
+
+The changes that dominated the process were the taks that were split into multiple tasks. This was expected due to continuing redefinition of the project as the development started. We anticipate having a more guided and solid task list as we continue in the future. Some tasks that were split were: 
+
+Local file capability: split into fetching local music files for the player client and loading/saving playlist information locally.
+Implementing Playlists: split into responding to new playlist requests, and adding/removing songs from playlists
+Implementing Voting: split into Highest votes first reorganization, round-robin voting, voting UI and backend support
+Creating a client: split into Client capable of fetching single song info and loading/playing and Capability for adding songs to the playlist and changing current song
+
+
+Decision of establishing different layers such as UI, front-end and back-end worked well so far. People with less experience and desire to work with javascript were still able to provide meaningful contrabutions, while back-end people have not been overly distracted with design aspects of the project.
+
+Using existing libraries introduced some challenges, such as harder and longer times debugging, need to learn a new infrastructure for other members. Still however, this can't exactly be categorized as a decision that hasn't worked well, simply one that introduced challenges.
+
+As the group has just started the implementation, there hasn't been much feedback and chance for reflection, hence there is an unability to identify many decisions that were helpful, and those that were detrimental.
+
+A concrete improvement to the process would be to have more meetings, earlier on during springs, and make as many of these meetings as possible face-to-face. Similarly, if schedules permit, members working on the same segments of the projects actually working together in the same physical space might improve communication.
