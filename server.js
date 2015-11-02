@@ -36,6 +36,16 @@ app.post('/removeSongFromPlaylist', function (request, response) {
     response.end();
 });
 
+//todo: implement
+app.post('/createRoom', function (request, response) {
+    console.log('creating room');
+});
+
+//todo:implement
+app.post('/joinRoom', function(request, response) {
+    console.log('joining room');
+});
+
 app.get('/currentSong', function (request, response) {
     console.log('retrieving current song information');
     response.status(200);
@@ -72,6 +82,7 @@ app.get('/currentPlaylist', function (request, response) {
             'Content-Type': 'text/json',
         });
         response.json(data);
+        console.log(data);
         response.end();
     });
 });
