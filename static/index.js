@@ -9,6 +9,9 @@ $(window).ready(function() {
                 $(".first").after("<audio controls></audio>");
                 $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
                 $("audio").append("Your browser does not support this music player.");
+                $("audio").onloadeddata = function() {
+                    alert("data loaded");
+                }
             };
         })(file);
         reader.readAsDataURL(file);

@@ -1,6 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
+var mongoose = requre('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
 var options = {
     root: __dirname
@@ -55,12 +56,16 @@ app.post('/joinRoom', function (request, response) {
         },
         function (err, room) {
             if (err) {
-                return console.error(err);
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
             }
             if (!room) { //if room not found, return 400
                 response.status(400);
                 response.send({
-                    "ErrorCode": "BAD_USERNAME"
+                    "ErrorCode": "ROOM_NOT_FOUND"
                 });
                 return response.end();
             }
@@ -86,6 +91,11 @@ app.post('/createRoom', function (request, response) {
         },
         function (err, room) {
             if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
                 return console.error(err);
             }
             if (room) { //if room not found, return 400
@@ -115,73 +125,238 @@ app.post('/createRoom', function (request, response) {
 })
 
 //todo: implement placeholder functions once dynamic playlist works
+
+//EXPECTS: roomName, and an array containing a list of song objects contain filename and file path
 app.post('/addAvailableSong', function (request, response) {
-    console.log('adding song to playlist');
-    upcomingSongs.push(response.body);
-    response.status(201);
-    response.end();
+    console.log('adding available song');
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            } else {
+                for (i = 0; i < songs.length; i++) {
+                    room.availableSongs.append({
+                        songName: request.body.songs[i].fileName,
+                        songPath: request.body.songs[i].filePath
+                    });
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                response.status(200);
+                return response.end();
+            }
+        });
 });
 
 //todo: implement placeholder functions once dynamic playlist works
 app.post('/addSongToPlaylist', function (request, response) {
     console.log('adding song to playlist');
-    upcomingSongs.push(response.body);
-    response.status(201);
-    response.end();
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            } else {
+                for (i = 0; i < songs.length; i++) {
+                    room.upcomingSongs.append({
+                        songName: request.body.songs[i].fileName,
+                        songPath: request.body.songs[i].filePath
+                    });
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                response.status(200);
+                return response.end();
+            }
+        });
 });
 
 //todo: implement placeholder functions once dynamic playlist works
 app.post('/removeAvailableSong', function (request, response) {
-    console.log('removing song from playlist');
-    upcomingSongs.splice(getIndex(response.body), 1);
-    response.end();
+    console.log('removing song from available songs');
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            } else {
+                for (i = 0; i < songs.length; i++) {
+                    room.availableSongs = room.availableSongs.splice(getIndex({
+                        songName: request.body.songs[i].fileName,
+                        songPath: request.body.songs[i].filePath
+                    }), 1);
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                response.status(200);
+                response.end();
+            }
+        });
 });
 
 //todo: implement placeholder functions once dynamic playlist works
-app.post('/removeAvailableSongFromPlaylist', function (request, response) {
+app.post('/removeSongFromPlaylist', function (request, response) {
     console.log('removing song from playlist');
-    upcomingSongs.splice(getIndex(response.body), 1);
-    response.end();
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            } else {
+                for (i = 0; i < songs.length; i++) {
+                    room.upcomingSongs = room.upcomingSongs.splice(getIndex({
+                        songName: request.body.songs[i].fileName,
+                        songPath: request.body.songs[i].filePath
+                    }), 1);
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                response.status(200);
+                response.end();
+            }
+        });
 });
 
 app.post('/currentSong', function (request, response) {
     console.log('retrieving current song information');
-    response.status(200);
-    response.set({
-        'Content-Type': 'text/json',
-    });
-    response.json(currentSong);
-    response.end();
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            }
+            response.status(200);
+            response.send(room.currentSong);
+            return response.end();
+        });
 });
 
 app.get('/playNextSong', function (request, response) {
     console.log('retrieving next song on the play list');
-    playedSongs.push(currentSong);
-    currentSong = upcomingSongs.pop();
-    response.json(currentSong);
-    response.end();
-});
-
-//todo: implement dynamic playlist
-app.get('/currentPlaylist', function (request, response) {
-    console.log('retrieving current playlist information');
-    fs.readFile('playlist.json', "binary", function (err, data) {
-        if (err) {
-            response.status(500);
-            response.set({
-                'Content-Type': 'text/plain',
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            }
+            room.playedSongs.append(currentSong);
+            if (room.upcomingSongs[0]) {
+                room.currentSong = room.upcomingSongs[0];
+                room.upcomingSongs = room.upcomingSongs.splice(0, 1);
+            }
+            room.save(function (err) {
+                if (err) {
+                    response.status(500);
+                    response.send({
+                        "ErrorCode": "INTERNAL_SERVER_ERROR"
+                    });
+                    return response.end();
+                }
             });
-            response.send(err + "\n");
-            response.end();
-            return;
-        }
-        response.status(200);
-        response.set({
-            'Content-Type': 'text/json',
+            response.status(200);
+            return response.end();
         });
-        response.json(data);
-        response.end();
-    });
 });
 
 var server = app.listen(3000, function () {
