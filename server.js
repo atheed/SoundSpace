@@ -144,7 +144,21 @@ app.post('/removeAvailableSongFromPlaylist', function (request, response) {
     response.end();
 });
 
+<<<<<<< HEAD
 app.post('/currentSong', function (request, response) {
+=======
+//todo: implement
+app.post('/createRoom', function (request, response) {
+    console.log('creating room');
+});
+
+//todo:implement
+app.post('/joinRoom', function(request, response) {
+    console.log('joining room');
+});
+
+app.get('/currentSong', function (request, response) {
+>>>>>>> 4c619a4f943f1d7f8b4855d5b5a297f74738e54d
     console.log('retrieving current song information');
     response.status(200);
     response.set({
@@ -180,6 +194,7 @@ app.get('/currentPlaylist', function (request, response) {
             'Content-Type': 'text/json',
         });
         response.json(data);
+        console.log(data);
         response.end();
     });
 });
