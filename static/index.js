@@ -6,9 +6,12 @@ $(window).ready(function() {
         reader.onload = (function(theFile) {
             return function(e) {
                 $("audio").remove();
-                $("body").append("<audio controls></audio>");
+                $(".first").after("<audio controls></audio>");
                 $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
                 $("audio").append("Your browser does not support this music player.");
+                $("audio").onloadeddata = function() {
+                    alert("data loaded");
+                }
             };
         })(file);
         reader.readAsDataURL(file);
@@ -111,7 +114,89 @@ function getPlaylist(){
 }
 
 /*
-*
-*
-*
+* Makes and AJAX call to create a new playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
 */
+function createRoom(roomNameIn, userNameIn, passwordIn = null){
+    $.ajax({
+      type: "POST",
+      url: "/createRoom",
+      dataType: "json",
+      name: roomNameIn,
+      username : userNameIn,
+      password : passwordIn
+    })
+    .fail(function(){
+        console.log("Create playlist failed");
+    })
+    .done(function(data){
+        console.log("Playlist: " + roomNameIn + " was successfully created");
+    });
+};
+
+/*
+* Makes and AJAX call to log into a specified playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function getAllPlaylists(){
+    $.ajax({
+      type: "GET",
+      url: "/getAllPlaylists",
+      dataType: "json",
+    })
+    .fail(function(){
+        console.log("Get all playlists failed");
+    })
+    .done(function(data){
+        console.log("All open playlists fetched successfully");
+        //ADD display all fetched playlists on UI functionality here.
+    });
+};
+
+/*
+* Makes and AJAX call to get a list of available songs to be added to playlist
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function getAvailableSongs(){
+    $.ajax({
+      type: "GET",
+      url: "/getAvailableSongs",
+      dataType: "json",
+    })
+    .fail(function(){
+        console.log("Get available songs failed");
+    })
+    .done(function(data){
+        console.log("All available songs fetched successfully");
+        //ADD display available songs on UI functionality here.
+    });
+};
+
+
+
+
+/*
+* Makes and AJAX call to log into a specified playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput = null){
+    $.ajax({
+      type: "POST",
+      url: "/logIntoPlaylist",
+      dataType: "json",
+      playListName: playlistNameInput,
+      userName : userNameInput,
+      password : passwordInput
+    })
+    .fail(function(){
+        console.log("Log into playlist failed");
+    })
+    .done(function(data){
+        console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
+    });
+};
+
