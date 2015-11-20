@@ -115,13 +115,15 @@ function getPlaylist(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createPlaylist(playlistNameInput, userNameInput){
+function createPlaylist(playlistNameInput, userNameInput, privacyInput = false, passwordInput = null){
     $.ajax({
       type: "POST",
       url: "/createPlaylist",
       dataType: "json",
       playListName: playlistNameInput,
-      creator : userNameInput 
+      creator : userNameInput,
+      privacy : privacyInput,
+      password : passwordInput
     })
     .fail(function(){
         console.log("Create playlist failed");
@@ -131,25 +133,3 @@ function createPlaylist(playlistNameInput, userNameInput){
     });
 };
 
-/*
-* Makes and AJAX call to create a new room at the back-end
-* TODO: Add any additional consequent action necessary to .done()
-*   which may be none...
-*/
-function createRoom(roomNameInput, userNameInput, privacyInput = false, passwordInput = null){
-    $.ajax({
-      type: "POST",
-      url: "/createRoom",
-      dataType: "json",
-      roomName: roomNameInput,
-      userName: userNameInput,
-      privacy: privacyInput,
-      password: passwordInput
-    })
-    .fail(function(){
-        console.log("Create room failed");
-    })
-    .done(function(data){
-        console.log("Room: " + roomNameInput + " was successfully created");
-    });
-};

@@ -31,14 +31,11 @@ Split getPlaylist method which places an AJAX call with url currentPlaylist into
 Implement AJAX call to back-end for createPlaylist: create a new playlist in the db for the room
     Must include a playlist name input from UI, along with the user's name
 Implement AJAX call to back-end for deletePlaylist: delete the given playlist in the db for the room
-    Must include a playlist name (by button id rather than input, and current user's name to check if the user was the playlist's creator)
-Implement AJAX call to back-end for createRoom: create a new room in the db that can be logged into by users
-    Must include a room name by input from UI, along with a new user name to be used as the username in the room, and a boolean for privacy(with a password if private)
-Implement AJAX call to back-end for logintoRoom: request to log into the given room title, with a password if private
+    Must include a playlist name (by button id rather than input), this will be triggered when the playlist has no users logged in
+Implement AJAX call to back-end for logIntoPlaylist: request to log into the given room title, with a password if private
     Must include a room name (by clicked room's id rather than input) along with a new username, and a password if the room is private
-Implement AJAX call to back-end for deleteRoom: request to delete the room if the room is created by the user
-    Must include a room name (by clicked room's id rather than input), along with username to check if the room is indeed created by user
-Implement AJAX call to back-end for addSongToPlaylist: request to add a specified song to the specified playlist
+    Username must be unique in the playlist
+Implement AJAX call to back-end for addSongToPlaylist: request to add a song to the given playlist
     Must include a songname or other song reference, and a playlist name(taken by context once again, such as actively open playlist etc)
 Implement AJAX call to back-end for deleteSongFromPlaylist: request to delete a song from a specified playlist
     Must include a songname or other song reference, and a playlist name(taken by context, such as actively open playlist etc)
@@ -62,9 +59,7 @@ Create Schemas and models in mongoose in server.js:
 
 Must implement handling for front end AJAX calls>
 Lit all API tasks here:
-Implement handling for create room requests
-Implement handling for login to room requests
-Implement handling for delete room request
+Implement handling for login to playlist requests
 Implement handling for create playList request
 Change getCurrentPlaylist handling when mongodb database is integrated
 Implement getPlaylistByTitle handling (after design decision One or more playlist per room?)
