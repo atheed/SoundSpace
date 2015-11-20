@@ -27,6 +27,8 @@ List ajax calls here:
 getPlaylist method which places an AJAX call with url currentPlaylist 
     receives the playlist structure for display on user clients and playing on host client
 
+Implement AJAX call to back-end for getAllPlaylists:    will be necessary at log into playlist screen
+    User will need to select a playlist to enter, all open playlists must be displayed. 
 Implement AJAX call to back-end for createPlaylist: create a new playlist in the db for the room
     Must include a playlist name input from UI, along with the user's name
 Implement AJAX call to back-end for logIntoPlaylist: request to log into the given room title, with a password if private
