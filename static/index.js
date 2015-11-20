@@ -133,3 +133,25 @@ function createPlaylist(playlistNameInput, userNameInput, privacyInput = false, 
     });
 };
 
+/*
+* Makes and AJAX call to log into a specified playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput = null){
+    $.ajax({
+      type: "POST",
+      url: "/logIntoPlaylist",
+      dataType: "json",
+      playListName: playlistNameInput,
+      userName : userNameInput,
+      password : passwordInput
+    })
+    .fail(function(){
+        console.log("Create playlist failed");
+    })
+    .done(function(data){
+        console.log("Playlist: " + playlistNameInput + " was successfully created");
+    });
+};
+

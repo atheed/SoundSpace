@@ -24,14 +24,11 @@ All buttons/links must be connected to necessary div hide/display functions, and
 List div/hide display and navigation tasks here:
 
 List ajax calls here:
-Split getPlaylist method which places an AJAX call with url currentPlaylist into two calls:
-    One AJAX call that gets the current playing playlist
-    Another AJAX call that gets a playlist by title (if more than 1 playlist per room is implemented)
+getPlaylist method which places an AJAX call with url currentPlaylist 
+    receives the playlist structure for display on user clients and playing on host client
 
 Implement AJAX call to back-end for createPlaylist: create a new playlist in the db for the room
     Must include a playlist name input from UI, along with the user's name
-Implement AJAX call to back-end for deletePlaylist: delete the given playlist in the db for the room
-    Must include a playlist name (by button id rather than input), this will be triggered when the playlist has no users logged in
 Implement AJAX call to back-end for logIntoPlaylist: request to log into the given room title, with a password if private
     Must include a room name (by clicked room's id rather than input) along with a new username, and a password if the room is private
     Username must be unique in the playlist
@@ -63,7 +60,8 @@ Implement handling for login to playlist requests
 Implement handling for create playList request
 Change getCurrentPlaylist handling when mongodb database is integrated
 Implement getPlaylistByTitle handling (after design decision One or more playlist per room?)
-Implement handling for delete playlist request
+Implement handling for delete playlist 
+    Session handling must be included to check the connected users, when no users are connected, the playlist is deleted
 Implement handling for add song to playlist request
 Implement handling for remove song from playlist request
 Review handling for currentSong request after db chane
