@@ -55,6 +55,12 @@ Back-end:
 Must implement mongodb (perhaps with mongoose) database management to handle larger volumes of users/rooms/playlists
 (Current implementation is with JSON objects, insufficient)
 List all database tasks here:
+Implement a mongodb database in server.js
+Create Schemas and models in mongoose in server.js:
+    Schema/model for room
+    Schema/model for playlist
+    Schema/model for user
+    (Should there be a seperate song schema or is as a part of playlist sufficient?)
 
 
 Must implement handling for front end AJAX calls>
