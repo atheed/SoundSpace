@@ -12,6 +12,14 @@
             "duration": 183,
             "genre" : "Dance-pop",
             "year" : 1987
+        },
+        {
+            "path" : "./hotlinebling.mp3",
+            "name": "Hotline Bling",
+            "artist": "Drake",
+            "duration": 267,
+            "genre" : "R&B",
+            "year" : 2015
         }
     ]
 }
