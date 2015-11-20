@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
 var bodyParser = require('body-parser'); //for JSON parsing for request body
@@ -7,7 +8,8 @@ var options = {
 }
 
 //Connect to MongoDB database
-mongoose.connect('mongodb://localhost:' + DB_PORT);
+var DB_PORT = "27017";
+mongoose.connect('mongodb://localhost:' + DB_PORT+"/301db");
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
