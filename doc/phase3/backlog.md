@@ -24,6 +24,31 @@ All buttons/links must be connected to necessary div hide/display functions, and
 List div/hide display and navigation tasks here:
 
 List ajax calls here:
+Split getPlaylist method which places an AJAX call with url currentPlaylist into two calls:
+    One AJAX call that gets the current playing playlist
+    Another AJAX call that gets a playlist by title (if more than 1 playlist per room is implemented)
+
+Implement AJAX call to back-end for createPlaylist: create a new playlist in the db for the room
+    Must include a playlist name input from UI, along with the user's name
+Implement AJAX call to back-end for deletePlaylist: delete the given playlist in the db for the room
+    Must include a playlist name (by button id rather than input, and current user's name to check if the user was the playlist's creator)
+Implement AJAX call to back-end for createRoom: create a new room in the db that can be logged into by users
+    Must include a room name by input from UI, along with a new user name to be used as the username in the room, and a boolean for privacy(with a password if private)
+Implement AJAX call to back-end for logintoRoom: request to log into the given room title, with a password if private
+    Must include a room name (by clicked room's id rather than input) along with a new username, and a password if the room is private
+Implement AJAX call to back-end for deleteRoom: request to delete the room if the room is created by the user
+    Must include a room name (by clicked room's id rather than input), along with username to check if the room is indeed created by user
+Implement AJAX call to back-end for addSongToPlaylist: request to add a specified song to the specified playlist
+    Must include a songname or other song reference, and a playlist name(taken by context once again, such as actively open playlist etc)
+Implement AJAX call to back-end for deleteSongFromPlaylist: request to delete a song from a specified playlist
+    Must include a songname or other song reference, and a playlist name(taken by context, such as actively open playlist etc)
+Implement AJAX call to back-end for currentSong: request to get the currently playing song at the active playlist in the room
+    Must include playlist name, there must be handling in case the selected playlist is not actively playing
+        This can also be handled by not making this call available in the UI while viewing an unactive playlist
+Implement AJAX call to back-end for nextSong: request to get the next song in queue for the active playlist in the room
+    Must include a playlist name, might need to have handling for the return of the first song in playlist if the playlist is not actively playing
+        Or similar UI availability as above
+
 
 
 Back-end:
