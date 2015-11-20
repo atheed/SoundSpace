@@ -5,6 +5,7 @@
     "dependencies": {
         "express": "3.x",
         "body-parser": "https://github.com/expressjs/body-parser",
-        "mongoose": "*"
+        "mongoose": "*",
+        "id3-reader": "https://github.com/aadsm/JavaScript-ID3-Reader"
     }
 }

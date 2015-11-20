@@ -2,7 +2,7 @@ var express = require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
-var mongoose = requre('mongoose');
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
 var options = {
     root: __dirname
@@ -50,6 +50,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+app.get('/id3-minimized.js', function(req, res){
+    res.sendfile('./static/JavaScript-ID3-Reader/dist/id3-minimized.js');
+});
 
 app.post('/joinRoom', function (request, response) {
     console.log('joining room');
