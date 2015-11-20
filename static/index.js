@@ -115,13 +115,15 @@ function getPlaylist(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createPlaylist(playlistNameInput, userNameInput){
+function createPlaylist(playlistNameInput, userNameInput, privacyInput = false, passwordInput = null){
     $.ajax({
       type: "POST",
       url: "/createPlaylist",
       dataType: "json",
       playListName: playlistNameInput,
-      creator : userNameInput 
+      creator : userNameInput,
+      privacy : privacyInput,
+      password : passwordInput
     })
     .fail(function(){
         console.log("Create playlist failed");
@@ -132,24 +134,45 @@ function createPlaylist(playlistNameInput, userNameInput){
 };
 
 /*
-* Makes and AJAX call to create a new room at the back-end
+* Makes and AJAX call to log into a specified playlist at the back-end
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createRoom(roomNameInput, userNameInput, privacyInput = false, passwordInput = null){
+function getAllPlaylists(){
     $.ajax({
-      type: "POST",
-      url: "/createRoom",
+      type: "GET",
+      url: "/getAllPlaylists",
       dataType: "json",
-      roomName: roomNameInput,
-      userName: userNameInput,
-      privacy: privacyInput,
-      password: passwordInput
     })
     .fail(function(){
-        console.log("Create room failed");
+        console.log("Get all playlists failed");
     })
     .done(function(data){
-        console.log("Room: " + roomNameInput + " was successfully created");
+        console.log("All open playlists fetched successfully");
+        //ADD display all fetched playlists on UI functionality here.
     });
 };
+
+
+/*
+* Makes and AJAX call to log into a specified playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput = null){
+    $.ajax({
+      type: "POST",
+      url: "/logIntoPlaylist",
+      dataType: "json",
+      playListName: playlistNameInput,
+      userName : userNameInput,
+      password : passwordInput
+    })
+    .fail(function(){
+        console.log("Log into playlist failed");
+    })
+    .done(function(data){
+        console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
+    });
+};
+
