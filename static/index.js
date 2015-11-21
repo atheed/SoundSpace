@@ -3,6 +3,27 @@ $(window).ready(function() {
     //getPlaylist();
 });
 
+$(document).on('click', '#createRoomButton', function(){
+    $("#landing").hide();
+    $("#create").show();
+    //TODO: Connect to backend with proper call
+});
+
+$(document).on('click', '#privRadio', function(){
+    $("#create > .input-field > input").show();
+});
+
+$(document).on('click', '#pubRadio', function(){
+    $("#create > .input-field > input").hide();
+});
+
+$(document).on('click', '#joinRoomButton', function(){
+    $("#landing").hide();
+    $("#join").show();
+    //TODO: Connect to backend with proper call
+    //TODO: Edit "existing room" inside password prompt to fetched room name
+});
+
 /* Function to change button text/classes/etc appropraitely upon clicking.
 *  Later on, can also be the starting point to actually do the upvote (i.e. to 
 *  propagate the vote onto the ordering of the queue)
@@ -184,6 +205,8 @@ function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
     });
 };
 
+var playlist = [];
+var curr = -1;
 //Handles dealing with file Input
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
@@ -200,10 +223,13 @@ function getFileInput() {
             var reader = new FileReader();
             reader.onload = (function(theFile) {
                 return function(e) {
-                    $("audio").remove();
-                    $(".first").after("<audio controls></audio>");
-                    $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
-                    $("audio").append("Your browser does not support this music player.");
+                    playlist.push(e.target.result.toString());
+                    if (i == fileInput.files.length) {
+                        if (curr == -1) {
+                            curr = 0;
+                            replaceAudioElement();
+                        }
+                    }
                 };
             })(file);
             reader.readAsDataURL(file);
@@ -211,8 +237,21 @@ function getFileInput() {
     });
 }
 
+function replaceAudioElement() {
+    $("audio").remove();
+    $(".first").after("<audio controls></audio>");
+    $("audio").append("<source id='player' src='" + playlist[curr]+"' type='audio/mp3'>");
+    $("audio").append("Your browser does not support this music player.");
+    $("audio").on("ended", function() {
+        if (curr != playlist.length -1) {
+            curr += 1;
+            replaceAudioElement();
+        }
+    });
+}
+
 /*Displays the song info after loaded
-TODO: change function to send data to server
+* TODO: change function to send data to server
 */
 function showTags(url) {
     var tags = ID3.getAllTags(url);
