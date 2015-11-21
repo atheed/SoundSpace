@@ -365,6 +365,32 @@ app.get('/playNextSong', function (request, response) {
         });
 });
 
+app.post('/getAvailableSongs', function (request, response) {
+    console.log('retrieving available songs');
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            }
+            response.status(200);
+            response.send(room.availableSongs);
+            return response.end();
+        });
+});
+
 var server = app.listen(3000, function () {
     var host = server.address().address;
     var port = server.address().port;
