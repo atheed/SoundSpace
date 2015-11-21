@@ -1,22 +1,6 @@
 $(window).ready(function() {
-    var fileInput = document.getElementById("FileInput");
-    fileInput.addEventListener('change', function(evt){
-        var file = fileInput.files[0];
-        var reader = new FileReader();
-        reader.onload = (function(theFile) {
-            return function(e) {
-                $("audio").remove();
-                $(".first").after("<audio controls></audio>");
-                $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
-                $("audio").append("Your browser does not support this music player.");
-                $("audio").onloadeddata = function() {
-                    alert("data loaded");
-                }
-            };
-        })(file);
-        reader.readAsDataURL(file);
-    });
-    getPlaylist();
+    getFileInput();
+    //getPlaylist();
 });
 
 /* Function to change button text/classes/etc appropraitely upon clicking.
@@ -118,7 +102,7 @@ function getPlaylist(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createRoom(roomNameIn, userNameIn, passwordIn = null){
+function createRoom(roomNameIn, userNameIn, passwordIn){
     $.ajax({
       type: "POST",
       url: "/createRoom",
@@ -183,7 +167,7 @@ function getAvailableSongs(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput = null){
+function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
     $.ajax({
       type: "POST",
       url: "/logIntoPlaylist",
@@ -200,3 +184,38 @@ function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput = null)
     });
 };
 
+//Handles dealing with file Input
+function getFileInput() {
+    var fileInput = document.getElementById("FileInput");
+    fileInput.addEventListener('change', function(evt){
+        for (i=0; i < fileInput.files.length; i++) {
+            var file = fileInput.files[i],
+                url = file.urn || file.name;
+            ID3.loadTags(url, function() {
+                showTags(url);
+            }, {
+                tags: ["title","artist","album","picture"],
+                dataReader: ID3.FileAPIReader(file)
+            });
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    $("audio").remove();
+                    $(".first").after("<audio controls></audio>");
+                    $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
+                    $("audio").append("Your browser does not support this music player.");
+                };
+            })(file);
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+/*Displays the song info after loaded
+TODO: change function to send data to server
+*/
+function showTags(url) {
+    var tags = ID3.getAllTags(url);
+    console.log(tags);
+    alert (tags.title + " " + tags.artist + " " + tags.album);
+}
