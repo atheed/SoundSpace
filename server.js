@@ -1,14 +1,16 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
-var mongoose = requre('mongoose');
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
 var options = {
     root: __dirname
 }
 
 //Connect to MongoDB database
-mongoose.connect('mongodb://localhost:' + DB_PORT);
+var DB_PORT = "27017";
+mongoose.connect('mongodb://localhost:' + DB_PORT+"/301db");
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
@@ -49,6 +51,10 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+app.get('/id3-minimized.js', function(req, res){
+    res.sendfile('./static/JavaScript-ID3-Reader/dist/id3-minimized.js');
+});
+
 app.post('/joinRoom', function (request, response) {
     console.log('joining room');
     Room.findOne({
@@ -69,7 +75,7 @@ app.post('/joinRoom', function (request, response) {
                 });
                 return response.end();
             }
-            if (room.lientUsers.indexOf(request.body.username) === -1) {
+            if (room.clientUsers.indexOf(request.body.username) === -1) {
                 room.clientUsers.append(request.body.username)
                 response.status(200); //returns 200 on success
                 response.send(room); //returns user as response

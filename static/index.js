@@ -1,22 +1,74 @@
+var roomInput;
+var userInput;
+var passwordInput;
+var currentRoomName;
+var currentUserName;
+
+
 $(window).ready(function() {
-    var fileInput = document.getElementById("FileInput");
-    fileInput.addEventListener('change', function(evt){
-        var file = fileInput.files[0];
-        var reader = new FileReader();
-        reader.onload = (function(theFile) {
-            return function(e) {
-                $("audio").remove();
-                $(".first").after("<audio controls></audio>");
-                $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
-                $("audio").append("Your browser does not support this music player.");
-                $("audio").onloadeddata = function() {
-                    alert("data loaded");
-                }
-            };
-        })(file);
-        reader.readAsDataURL(file);
-    });
-    getPlaylist();
+    getFileInput();
+    //getPlaylist();
+});
+
+/*
+* Triggered when Create Room button is clicked on the landing page
+* Hides the landing page and reveals the secondary create room page if a room name is entered
+*/
+$(document).on('click', '#createRoomButton', function(){
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#create").show();
+    }
+});
+
+/*
+* Triggered when room name input field is clicked 
+* Resets the 'Room Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#roomNameField", function(){
+    $("#roomNameField").attr("placeholder", "Room Name");
+});
+
+/*
+* Triggered when user name input field is clicked 
+* Resets the 'User Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#userNameField", function(){
+    $("#userNameField").attr("placeholder", "User Name");
+});
+
+
+/*
+* Triggered when private radio button in secondary room creation screen is clicked
+* Reveals the password field
+*/
+$(document).on('click', '#privRadio', function(){
+    $("#create > .input-field > input").show();
+});
+
+/*
+* Triggered when public radio button in secondary room creation screen is clicked
+* Resets and hides the password field
+*/
+$(document).on('click', '#pubRadio', function(){
+    $('[name = "pswdfield"]').val("");
+    $("#create > .input-field > input").hide();
+});
+
+/*
+* Triggered when join room button is pressed on landing page
+* Hides the landing page if a room name is entered
+* Shows a password input field if the room is private
+*/
+$(document).on('click', '#joinRoomButton', function(){
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#join").show();
+    }
+    //TODO: Connect to backend with proper call
+    //TODO: Edit "existing room" inside password prompt to fetched room name
 });
 
 /* Function to change button text/classes/etc appropraitely upon clicking.
@@ -118,41 +170,154 @@ function getPlaylist(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createPlaylist(playlistNameInput, userNameInput){
+function createRoom(roomNameIn, userNameIn, passwordIn){
     $.ajax({
       type: "POST",
-      url: "/createPlaylist",
+      url: "/createRoom",
       dataType: "json",
-      playListName: playlistNameInput,
-      creator : userNameInput 
+      name: roomNameIn,
+      username : userNameIn,
+      password : passwordIn
     })
     .fail(function(){
         console.log("Create playlist failed");
     })
     .done(function(data){
-        console.log("Playlist: " + playlistNameInput + " was successfully created");
+        console.log("Playlist: " + roomNameIn + " was successfully created");
     });
 };
 
 /*
-* Makes and AJAX call to create a new room at the back-end
+* Makes and AJAX call to log into a specified playlist at the back-end
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function createRoom(roomNameInput, userNameInput, privacyInput = false, passwordInput = null){
+function getAllPlaylists(){
     $.ajax({
-      type: "POST",
-      url: "/createRoom",
+      type: "GET",
+      url: "/getAllPlaylists",
       dataType: "json",
-      roomName: roomNameInput,
-      userName: userNameInput,
-      privacy: privacyInput,
-      password: passwordInput
     })
     .fail(function(){
-        console.log("Create room failed");
+        console.log("Get all playlists failed");
     })
     .done(function(data){
-        console.log("Room: " + roomNameInput + " was successfully created");
+        console.log("All open playlists fetched successfully");
+        //ADD display all fetched playlists on UI functionality here.
     });
 };
+
+/*
+* Makes and AJAX call to get a list of available songs to be added to playlist
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function getAvailableSongs(){
+    $.ajax({
+      type: "GET",
+      url: "/getAvailableSongs",
+      dataType: "json",
+    })
+    .fail(function(){
+        console.log("Get available songs failed");
+    })
+    .done(function(data){
+        console.log("All available songs fetched successfully");
+        //ADD display available songs on UI functionality here.
+    });
+};
+
+
+
+
+/*
+* Makes and AJAX call to log into a specified playlist at the back-end
+* TODO: Add any additional consequent action necessary to .done()
+*   which may be none...
+*/
+function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
+    $.ajax({
+      type: "POST",
+      url: "/logIntoPlaylist",
+      dataType: "json",
+      playListName: playlistNameInput,
+      userName : userNameInput,
+      password : passwordInput
+    })
+    .fail(function(){
+        console.log("Log into playlist failed");
+    })
+    .done(function(data){
+        console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
+    });
+};
+
+var playlist = [];
+var curr = -1;
+//Handles dealing with file Input
+function getFileInput() {
+    var fileInput = document.getElementById("FileInput");
+    fileInput.addEventListener('change', function(evt){
+        for (i=0; i < fileInput.files.length; i++) {
+            var file = fileInput.files[i],
+                url = file.urn || file.name;
+            ID3.loadTags(url, function() {
+                showTags(url);
+            }, {
+                tags: ["title","artist","album","picture"],
+                dataReader: ID3.FileAPIReader(file)
+            });
+            var reader = new FileReader();
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    playlist.push(e.target.result.toString());
+                    if (i == fileInput.files.length) {
+                        if (curr == -1) {
+                            curr = 0;
+                            replaceAudioElement();
+                        }
+                    }
+                };
+            })(file);
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function replaceAudioElement() {
+    $("audio").remove();
+    $(".first").after("<audio controls></audio>");
+    $("audio").append("<source id='player' src='" + playlist[curr]+"' type='audio/mp3'>");
+    $("audio").append("Your browser does not support this music player.");
+    $("audio").on("ended", function() {
+        if (curr != playlist.length -1) {
+            curr += 1;
+            replaceAudioElement();
+        }
+    });
+}
+
+/*Displays the song info after loaded
+* TODO: change function to send data to server
+*/
+function showTags(url) {
+    var tags = ID3.getAllTags(url);
+    console.log(tags);
+    alert (tags.title + " " + tags.artist + " " + tags.album);
+}
+
+function entryFieldsFilled(){
+    roomInput = $("#roomNameField").val();
+    userInput = $("#userNameField").val();
+    
+    if(roomInput == "" || userInput == ""){
+        if(roomInput == ""){
+            $("#roomNameField").attr("placeholder", "You must enter a room to continue");
+        }
+        if (userInput == ""){
+            $("#userNameField").attr("placeholder", "You must enter a user name to continue");
+        }
+        return false;
+    }
+    return true;
+}
