@@ -75,7 +75,7 @@ app.post('/joinRoom', function (request, response) {
                 });
                 return response.end();
             }
-            if (room.lientUsers.indexOf(request.body.username) === -1) {
+            if (room.clientUsers.indexOf(request.body.username) === -1) {
                 room.clientUsers.append(request.body.username)
                 response.status(200); //returns 200 on success
                 response.send(room); //returns user as response

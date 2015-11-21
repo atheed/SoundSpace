@@ -20,6 +20,7 @@ Users (host or otherwise) add songs to the room/playlist from the list of availa
 voting/reordering functionality (elaborate)
 
 
+
 Work to be Done in Phase 3 for foreseen MVP:
 
 

@@ -1,25 +1,72 @@
+var roomInput;
+var userInput;
+var passwordInput;
+var currentRoomName;
+var currentUserName;
+
+
 $(window).ready(function() {
     getFileInput();
     //getPlaylist();
 });
 
+/*
+* Triggered when Create Room button is clicked on the landing page
+* Hides the landing page and reveals the secondary create room page if a room name is entered
+*/
 $(document).on('click', '#createRoomButton', function(){
-    $("#landing").hide();
-    $("#create").show();
-    //TODO: Connect to backend with proper call
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#create").show();
+    }
 });
 
+/*
+* Triggered when room name input field is clicked 
+* Resets the 'Room Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#roomNameField", function(){
+    $("#roomNameField").attr("placeholder", "Room Name");
+});
+
+/*
+* Triggered when user name input field is clicked 
+* Resets the 'User Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#userNameField", function(){
+    $("#userNameField").attr("placeholder", "User Name");
+});
+
+
+/*
+* Triggered when private radio button in secondary room creation screen is clicked
+* Reveals the password field
+*/
 $(document).on('click', '#privRadio', function(){
     $("#create > .input-field > input").show();
 });
 
+/*
+* Triggered when public radio button in secondary room creation screen is clicked
+* Resets and hides the password field
+*/
 $(document).on('click', '#pubRadio', function(){
+    $('[name = "pswdfield"]').val("");
     $("#create > .input-field > input").hide();
 });
 
+/*
+* Triggered when join room button is pressed on landing page
+* Hides the landing page if a room name is entered
+* Shows a password input field if the room is private
+*/
 $(document).on('click', '#joinRoomButton', function(){
-    $("#landing").hide();
-    $("#join").show();
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#join").show();
+    }
     //TODO: Connect to backend with proper call
     //TODO: Edit "existing room" inside password prompt to fetched room name
 });
@@ -257,4 +304,20 @@ function showTags(url) {
     var tags = ID3.getAllTags(url);
     console.log(tags);
     alert (tags.title + " " + tags.artist + " " + tags.album);
+}
+
+function entryFieldsFilled(){
+    roomInput = $("#roomNameField").val();
+    userInput = $("#userNameField").val();
+    
+    if(roomInput == "" || userInput == ""){
+        if(roomInput == ""){
+            $("#roomNameField").attr("placeholder", "You must enter a room to continue");
+        }
+        if (userInput == ""){
+            $("#userNameField").attr("placeholder", "You must enter a user name to continue");
+        }
+        return false;
+    }
+    return true;
 }
