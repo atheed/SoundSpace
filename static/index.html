@@ -10,13 +10,26 @@
 	<body>
 		<h1 align="center">App Name</h1>
 		<br><br>
-		<center><a href="room.html" class="style">Create a Room</a></center>
-		<br>
-		<form action="search.html">
-		<font face="Arial Black" color="white">Search for a room: </font><input type="text" name="RoomSearch" value="">
-		<input type="submit" value="Search">
-		</form>
+		
 		<br /> <br />
-		<center><a href="playlist_page.html" class="style">Playlist Page</a></center>
+		<div id="landing">
+
+			<font face="Trebuchet MS" size="5" color="white"><b>Room name: </b></font><input type="text" name="RoomSearch" style="font-size:20px" value="">
+			<br><br>
+
+			<button class="btn createButton">Create Room</button>
+			<button class="btn joinButton">Join Room</button>
+
+		</div>
+		<div id="create">
+
+			<input type="radio" name="privacy" checked="true" value="public">Public</input>	
+			<input type="radio" name="privacy" value="private">Private</input>	
+			<p class="password">Password:</p>
+			<input type="text" class="password" name="password-text" />
+			<button id="continue-button">Continue</button>	
+
+		</div>
+
 	</body>
 </html>
