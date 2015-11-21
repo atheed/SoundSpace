@@ -29,6 +29,8 @@ Must have a final UI and working interaction design that switches between login,
 Front-end:
 All buttons/links must be connected to necessary div hide/display functions, and post/get ajax requests:
 List div/hide display and navigation tasks here:
+Edit style file to set default visibility behaviour for divs
+Write click functions in index.js to implement swapping between divs
 
 List ajax calls here:
 getPlaylist method which places an AJAX call with url currentPlaylist 

@@ -3,6 +3,27 @@ $(window).ready(function() {
     //getPlaylist();
 });
 
+$(document).on('click', '#createRoomButton', function(){
+    $("#landing").hide();
+    $("#create").show();
+    //TODO: Connect to backend with proper call
+});
+
+$(document).on('click', '#privRadio', function(){
+    $("#create > .input-field > input").show();
+});
+
+$(document).on('click', '#pubRadio', function(){
+    $("#create > .input-field > input").hide();
+});
+
+$(document).on('click', '#joinRoomButton', function(){
+    $("#landing").hide();
+    $("#join").show();
+    //TODO: Connect to backend with proper call
+    //TODO: Edit "existing room" inside password prompt to fetched room name
+});
+
 /* Function to change button text/classes/etc appropraitely upon clicking.
 *  Later on, can also be the starting point to actually do the upvote (i.e. to 
 *  propagate the vote onto the ordering of the queue)
