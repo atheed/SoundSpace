@@ -10,25 +10,32 @@
 	<body>
 		<h1 align="center">App Name</h1>
 		<br><br>
-		
 		<br /> <br />
 		<div id="landing">
-
-			<font face="Trebuchet MS" size="5" color="white"><b>Room name: </b></font><input type="text" name="RoomSearch" style="font-size:20px" value="">
-			<br><br>
-
-			<button class="btn createButton">Create Room</button>
-			<button class="btn joinButton">Join Room</button>
-
+			<div class="input-field">
+			<input type="text" name="field1" placeholder="Room Name" />
+			<button id="createRoomButton" class="btn">Create Room</button>
+			<button id="joinRoomButton" class="btn">Join Room</button>
+			</div>
 		</div>
 		<div id="create">
+			<div id="radioDiv">
+			<input type="radio" id="pubRadio" class="css-checkbox" name="privacy" checked="checked" value="public" />
+			<label for="pubRadio" class="css-label">Public</label>
+			<input type="radio" id="privRadio" class="css-checkbox" name="privacy" value="private"/>
+			<label for="privRadio" class="css-label">Private</label>
+			</div>
+			<div class="input-field">
+			<input type="text" name="pswdfield" placeholder="Password for new room" />
+			<button id="createContinueButton" class="btn passwordButton">Create Room</button>
+			</div>
+		</div>
 
-			<input type="radio" name="privacy" checked="true" value="public">Public</input>	
-			<input type="radio" name="privacy" value="private">Private</input>	
-			<p class="password">Password:</p>
-			<input type="text" class="password" name="password-text" />
-			<button id="continue-button">Continue</button>	
-
+		<div id="join">
+			<div class="input-field">
+			<input type="text" name="pswdfield" placeholder="Password for existing room" />
+			<button id="joinContinueButton" class="btn passwordButton">Join Room</button>
+			</div>
 		</div>
 
 	</body>
