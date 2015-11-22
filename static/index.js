@@ -71,6 +71,18 @@ $(document).on('click', '#joinRoomButton', function(){
     //TODO: Edit "existing room" inside password prompt to fetched room name
 });
 
+/*
+* Triggered when a Back button is clicked while either creating or joining a room
+* Hides the create/join room page and reverts to the landing page
+*/
+$(document).on('click', '.backButton', function(){
+    if(entryFieldsFilled()){
+        $("#landing").show();
+        $("#create").hide();
+        $("#join").hide();
+    }
+});
+
 /* Function to change button text/classes/etc appropraitely upon clicking.
 *  Later on, can also be the starting point to actually do the upvote (i.e. to 
 *  propagate the vote onto the ordering of the queue)
