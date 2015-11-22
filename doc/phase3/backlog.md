@@ -79,5 +79,6 @@ Implement handling for delete playlist
     Session handling must be included to check the connected users, when no users are connected, the playlist is deleted
 Implement handling for add song to playlist request
 Implement handling for remove song from playlist request
+Implement retrieving list of songs available to be added to playlists for a given room
 Review handling for currentSong request after db chane
 Review handling for nextSong request after db change
