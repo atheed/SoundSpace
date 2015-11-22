@@ -3,7 +3,7 @@ var userInput;
 var passwordInput;
 var currentRoomName;
 var currentUserName;
-//var socket = io();
+var socket = io.connect('http://localhost:3000');
 
 $(window).ready(function() {
     getFileInput();
