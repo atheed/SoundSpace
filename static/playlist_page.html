@@ -36,7 +36,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
+                <tr class="parent" id="row1">
                 <td>Never Gonna Give You Up</td>
                 <td>Rick Astley</td>
                 <td>3:03</td>
@@ -46,7 +46,14 @@
                     <button type="button" id="neverd" class="voteBtn downvoteButton" style.display="block">Downvote</button>
                 </td>
                 </tr>
-                <tr>
+                <tr class="child-row1" style="display: none;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Suggested by user123</td>
+                </tr>
+                <tr class="parent" id="row2">
                 <td>Hotling Bling</td>
                 <td>Drake</td>
                 <td>4:27</td>
@@ -55,10 +62,19 @@
                     <button type="button" id="blingu" class="voteBtn upvoteButton">Upvote</button> 
                     <button type="button" id="blingd" class="voteBtn downvoteButton" style.display="block">Downvote</button></td>
                 </tr>
+                <tr class="child-row2" style="display: none;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Suggested by user321</td>
+                </tr>
                 </tbody>
                 </table>
             <p></p>
         </div>
+
+
         <div id="add_suggest">
             <br></br> <br></br>
             <h3 class="divHeading">Add/Suggest Songs<h3>

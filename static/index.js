@@ -3,7 +3,7 @@ var userInput;
 var passwordInput;
 var currentRoomName;
 var currentUserName;
-var socket = io.connect('http://localhost:3000');
+//var socket = io();
 
 $(window).ready(function() {
     getFileInput();
@@ -152,6 +152,19 @@ $(document).on('click', '.undoDownvoteButton', function() {
     var del = this.id.slice(0, -1) + 'u';
     document.getElementById(del).style.display = "inline";
 });
+
+/* Shows/hides the person who suggested the song
+*  Credits to Matt Kruse for the idea 
+*/
+$(function() {
+    $('tr.parent')
+        .css("cursor","pointer")
+        .click(function(){
+            $(this).siblings('.child-'+this.id).toggle();
+        });
+    $('tr[@class^=child-]').hide().children('td');
+});
+
 
 
 /* Makes an AJAX call to get the playlist from the back-end
@@ -308,7 +321,6 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
-            songnames.push("");
         }
         readFile(fileInput.files, 0);
     });
@@ -322,7 +334,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function() {
-                songnames[i] = getSongName(songurls[i]);
+                songnames[i] = getSongName(i);
             }, {
                 tags: ["title","artist","album","picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -345,7 +357,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songnames[j],
+            songName: songames[j],
             songPath: songpaths[j],
             room: "demo"
         })
@@ -394,3 +406,4 @@ function entryFieldsFilled(){
     }
     return true;
 }
+
