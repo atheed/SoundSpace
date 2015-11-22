@@ -212,32 +212,32 @@ button{
 	cursor: url(http://cur.cursors-4u.net/symbols/sym-1/sym46.cur), auto;
 }
 
-#createRoomButton {
+.cButton {
 	color: #55acee;
 	border: 2px #55acee solid;
 }
 
-#createRoomButton:hover {
+.cButton:hover {
 	background-color: #55acee;
 	color: #fff
 }
 
-#joinRoomButton {
+.jButton {
 	color: #e67e22;
 	border: 2px #e67e22 solid;
 }
 
-#joinRoomButton:hover {
+.jButton:hover {
 	color: #fff;
 	background-color: #e67e22;
 }
 
-.passwordButton {
+.backButton {
 	color: #e74c3c;
 	border: 2px #e74c3c solid;
 }
 
-.passwordButton:hover {
+.backButton:hover {
 	color: #fff;
 	background-color: #e74c3c;
 }
