@@ -262,39 +262,49 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             ID3.loadTags(url, function() {
+                console.log(url);
                 showTags(url);
             }, {
                 tags: ["title","artist","album","picture"],
                 dataReader: ID3.FileAPIReader(file)
             });
-            var reader = new FileReader();
-            reader.onload = (function(theFile) {
-                return function(e) {
-                    playlist.push(e.target.result.toString());
-                    if (i == fileInput.files.length) {
-                        if (curr == -1) {
-                            curr = 0;
-                            replaceAudioElement();
-                        }
-                    }
-                };
-            })(file);
-            reader.readAsDataURL(file);
         }
+        readFile(fileInput.files, 0);
     });
 }
 
-function replaceAudioElement() {
+function readFile(files, i) {
+    var file = files[i];
+    var reader = new FileReader();
+    reader.onload = (function(theFile) {
+        return function(e) {
+            playlist.push(e.target.result.toString());
+            if (i == files.length -1) {
+                if (curr == -1) {
+                    curr = 0;
+                    replaceAudioElement(1);
+                }
+            }
+            else {
+                readFile(files,i+1);
+            }
+        };
+    })(file);
+    reader.readAsDataURL(file);
+}
+function replaceAudioElement(volume) {
     $("audio").remove();
-    $(".first").after("<audio controls></audio>");
+    $(".first").after("<audio controls autoplay='autoplay'></audio>");
     $("audio").append("<source id='player' src='" + playlist[curr]+"' type='audio/mp3'>");
     $("audio").append("Your browser does not support this music player.");
+    $("audio").prop("volume", volume);
     $("audio").on("ended", function() {
         if (curr != playlist.length -1) {
             curr += 1;
-            replaceAudioElement();
+            replaceAudioElement($("audio").prop("volume"));
         }
     });
+    
 }
 
 /*Displays the song info after loaded
