@@ -3,7 +3,7 @@ var userInput;
 var passwordInput;
 var currentRoomName;
 var currentUserName;
-
+var socket = io();
 
 $(window).ready(function() {
     getFileInput();
@@ -265,21 +265,23 @@ function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
 };
 
 var playlist = [];
+var songs = [];
+var songnames = [];
+var songurls = [];
+var songpaths = [];
 var curr = -1;
 //Handles dealing with file Input
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
     fileInput.addEventListener('change', function(evt){
+        songs = [];
+        songnames = [];
+        songurls = [];
+        songpaths = [];
         for (i=0; i < fileInput.files.length; i++) {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
-            ID3.loadTags(url, function() {
-                console.log(url);
-                showTags(url);
-            }, {
-                tags: ["title","artist","album","picture"],
-                dataReader: ID3.FileAPIReader(file)
-            });
+            songurls.push(url);
         }
         readFile(fileInput.files, 0);
     });
@@ -290,11 +292,19 @@ function readFile(files, i) {
     var reader = new FileReader();
     reader.onload = (function(theFile) {
         return function(e) {
+            songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
+            ID3.loadTags(songurls[i], function() {
+                songnames[i] = getSongName(i);
+            }, {
+                tags: ["title","artist","album","picture"],
+                dataReader: ID3.FileAPIReader(file)
+            });
             if (i == files.length -1) {
                 if (curr == -1) {
                     curr = 0;
                     replaceAudioElement(1);
+                    sendUpdate();
                 }
             }
             else {
@@ -303,6 +313,20 @@ function readFile(files, i) {
         };
     })(file);
     reader.readAsDataURL(file);
+}
+
+function sendUpdate() {
+    for (j = 0; j < songnames.length; j++) {
+        songs.push({
+            songName: songames[j],
+            songPath: songpaths[j],
+            room: "demo"
+        })
+    }
+    socket.emit("playlistUpdate", {
+        songs: songs,
+        updateType: "add"
+    });
 }
 function replaceAudioElement(volume) {
     $("audio").remove();
@@ -319,13 +343,13 @@ function replaceAudioElement(volume) {
     
 }
 
+
 /*Displays the song info after loaded
 * TODO: change function to send data to server
 */
-function showTags(url) {
+function getSongName(url) {
     var tags = ID3.getAllTags(url);
-    console.log(tags);
-    alert (tags.title + " " + tags.artist + " " + tags.album);
+    return tags.title;
 }
 
 function entryFieldsFilled(){
