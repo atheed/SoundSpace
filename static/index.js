@@ -3,7 +3,7 @@ var userInput;
 var passwordInput;
 var currentRoomName;
 var currentUserName;
-var socket = io();
+//var socket = io();
 
 $(window).ready(function() {
     getFileInput();
@@ -19,6 +19,16 @@ $(document).on('click', '#createRoomButton', function(){
         $("#landing").hide();
         $("#create").show();
     }
+});
+
+/*
+* Triggered when Create Continue button is clicked on the create room page
+* Hides the landing page and reveals the secondary create room page if a room name is entered
+*/
+$(document).on('click', '#createContinueButton', function(){
+    passwordInput = $('[name = "pswdfield"]').val("");
+    $("#errorField").text("");
+    createRoom(roomInput, userInput, passwordInput);
 });
 
 /*
@@ -64,11 +74,15 @@ $(document).on('click', '#pubRadio', function(){
 */
 $(document).on('click', '#joinRoomButton', function(){
     if(entryFieldsFilled()){
-        $("#landing").hide();
-        $("#join").show();
+        $("#errorField").text("");
+        //Private room functionality not yet implemented.
+        //$("#landing").hide();
+        //$("#join").show();
+        
+        joinRoom(roomInput, userInput, "");
+        //Error handling for private rooms
+        //Trigger password input
     }
-    //TODO: Connect to backend with proper call
-    //TODO: Edit "existing room" inside password prompt to fetched room name
 });
 
 /*
@@ -190,13 +204,18 @@ function createRoom(roomNameIn, userNameIn, passwordIn){
       dataType: "json",
       name: roomNameIn,
       username : userNameIn,
-      password : passwordIn
-    })
-    .fail(function(){
-        console.log("Create playlist failed");
+      password : passwordIn,
+      statusCode: {
+          400: function(){
+              $("#errorField").text("Room Name already exists. Select a different room name.");
+          },
+          500: function(){
+              $("#errorField").text("Internal Server Error");
+          }
+      }
     })
     .done(function(data){
-        console.log("Playlist: " + roomNameIn + " was successfully created");
+        //TODO: Trigger Join to the newly created room
     });
 };
 
@@ -248,20 +267,26 @@ function getAvailableSongs(){
 * TODO: Add any additional consequent action necessary to .done()
 *   which may be none...
 */
-function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
+function joinRoom(playlistNameInput, userNameInput, passwordInput){
     $.ajax({
       type: "POST",
       url: "/logIntoPlaylist",
       dataType: "json",
       playListName: playlistNameInput,
       userName : userNameInput,
-      password : passwordInput
-    })
-    .fail(function(){
-        console.log("Log into playlist failed");
+      password : passwordInput,
+      statusCode: {
+          400: function(){
+              $("#errorField").text("Room not found.");
+          },
+          500: function(){
+              $("#errorField").text("Internal Server Error.");
+          }
+      }
     })
     .done(function(data){
         console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
+        //TODO: Trigger loading room/playlist division
     });
 };
 
