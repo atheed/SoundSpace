@@ -13,7 +13,9 @@ The primary communication tool continues to be Slack. Group members pose questio
 
 The group has followed a slightly different approach from the process that was defined in Phase 2. One particular difference was the lack of scrum meetings. There was a shift towards leaving updates on work taken on and work done on the Slack channel, with member-to-member messages sent for clarifying issues in coupled areas of code.
 
-A second version of a backlog was used to identify more specific tasks, a document that was kept up to date with different design decisions and cut-off features for the project. It can be found in this documents folder. 
+A second version of a backlog was used to identify more specific tasks, a document that was kept up to date with different design decisions and cut-off features for the project. It can be found in this phase's documents folder or [here](https://github.com/csc301-fall-2015/project-team5-L0101/blob/master/doc/phase3/backlog.md).
+
+One group development session and meeting was conducted on 11/19 in BA3200. For the first 2 hours, back-end and server functionality were worked on, adaptation to mongodb database rather than using JSON files were discussed. Design changes for merging room/playlist functionality was made. For the last three hours, front-end and GUI was worked on, hmtl files were merged, and physical design aspects of the GUI was discussed along with changing the UX design to eliminate unnecessary extra steps users must go through to navigate the app.
 
 Issues were used more frequently this time, with much more specific written tasks for each Issue. Issues opened in this Phase can be seen [here](https://github.com/csc301-fall-2015/project-team5-L0101/issues?utf8=%E2%9C%93&q=is%3Aissue+created%3A%3E2015-11-18+) with closed issues [here](https://github.com/csc301-fall-2015/project-team5-L0101/issues?utf8=%E2%9C%93&q=is%3Aissue+created%3A%3E2015-11-18+is%3Aclosed). Some individual progress can be seen here in form of issues as well.
 
