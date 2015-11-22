@@ -308,6 +308,7 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
+            songnames.push("");
         }
         readFile(fileInput.files, 0);
     });
@@ -321,7 +322,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function() {
-                songnames[i] = getSongName(i);
+                songnames[i] = getSongName(songurls[i]);
             }, {
                 tags: ["title","artist","album","picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -344,7 +345,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songames[j],
+            songName: songnames[j],
             songPath: songpaths[j],
             room: "demo"
         })
