@@ -1,6 +1,74 @@
+var roomInput;
+var userInput;
+var passwordInput;
+var currentRoomName;
+var currentUserName;
+
+
 $(window).ready(function() {
     getFileInput();
     //getPlaylist();
+});
+
+/*
+* Triggered when Create Room button is clicked on the landing page
+* Hides the landing page and reveals the secondary create room page if a room name is entered
+*/
+$(document).on('click', '#createRoomButton', function(){
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#create").show();
+    }
+});
+
+/*
+* Triggered when room name input field is clicked 
+* Resets the 'Room Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#roomNameField", function(){
+    $("#roomNameField").attr("placeholder", "Room Name");
+});
+
+/*
+* Triggered when user name input field is clicked 
+* Resets the 'User Name' placeholder text inside the input field
+* In case user previously caused the text to change to a warning 
+*/
+$(document).on('click', "#userNameField", function(){
+    $("#userNameField").attr("placeholder", "User Name");
+});
+
+
+/*
+* Triggered when private radio button in secondary room creation screen is clicked
+* Reveals the password field
+*/
+$(document).on('click', '#privRadio', function(){
+    $("#create > .input-field > input").show();
+});
+
+/*
+* Triggered when public radio button in secondary room creation screen is clicked
+* Resets and hides the password field
+*/
+$(document).on('click', '#pubRadio', function(){
+    $('[name = "pswdfield"]').val("");
+    $("#create > .input-field > input").hide();
+});
+
+/*
+* Triggered when join room button is pressed on landing page
+* Hides the landing page if a room name is entered
+* Shows a password input field if the room is private
+*/
+$(document).on('click', '#joinRoomButton', function(){
+    if(entryFieldsFilled()){
+        $("#landing").hide();
+        $("#join").show();
+    }
+    //TODO: Connect to backend with proper call
+    //TODO: Edit "existing room" inside password prompt to fetched room name
 });
 
 /* Function to change button text/classes/etc appropraitely upon clicking.
@@ -184,6 +252,8 @@ function logIntoPlaylist(playlistNameInput, userNameInput, passwordInput){
     });
 };
 
+var playlist = [];
+var curr = -1;
 //Handles dealing with file Input
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
@@ -200,10 +270,13 @@ function getFileInput() {
             var reader = new FileReader();
             reader.onload = (function(theFile) {
                 return function(e) {
-                    $("audio").remove();
-                    $(".first").after("<audio controls></audio>");
-                    $("audio").append("<source id='player' src='" + e.target.result.toString()+"' type='audio/mp3'>");
-                    $("audio").append("Your browser does not support this music player.");
+                    playlist.push(e.target.result.toString());
+                    if (i == fileInput.files.length) {
+                        if (curr == -1) {
+                            curr = 0;
+                            replaceAudioElement();
+                        }
+                    }
                 };
             })(file);
             reader.readAsDataURL(file);
@@ -211,11 +284,40 @@ function getFileInput() {
     });
 }
 
+function replaceAudioElement() {
+    $("audio").remove();
+    $(".first").after("<audio controls></audio>");
+    $("audio").append("<source id='player' src='" + playlist[curr]+"' type='audio/mp3'>");
+    $("audio").append("Your browser does not support this music player.");
+    $("audio").on("ended", function() {
+        if (curr != playlist.length -1) {
+            curr += 1;
+            replaceAudioElement();
+        }
+    });
+}
+
 /*Displays the song info after loaded
-TODO: change function to send data to server
+* TODO: change function to send data to server
 */
 function showTags(url) {
     var tags = ID3.getAllTags(url);
     console.log(tags);
     alert (tags.title + " " + tags.artist + " " + tags.album);
+}
+
+function entryFieldsFilled(){
+    roomInput = $("#roomNameField").val();
+    userInput = $("#userNameField").val();
+    
+    if(roomInput == "" || userInput == ""){
+        if(roomInput == ""){
+            $("#roomNameField").attr("placeholder", "You must enter a room to continue");
+        }
+        if (userInput == ""){
+            $("#userNameField").attr("placeholder", "You must enter a user name to continue");
+        }
+        return false;
+    }
+    return true;
 }
