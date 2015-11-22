@@ -2,10 +2,10 @@ var express = require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
-var http = require('http').Server(app);
+var server = app.listen(3000);
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
-var io = require('socket.io')(http);
+var io = require('socket.io').listen(server);
 var options = {
     root: __dirname
 }
@@ -488,9 +488,4 @@ app.post('/getAvailableSongs', function (request, response) {
             response.send(room.availableSongs);
             return response.end();
         });
-});
-
-var server = app.listen(3000, function () {
-    var host = server.address().address;
-    var port = server.address().port;
 });
