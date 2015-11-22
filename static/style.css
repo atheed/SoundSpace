@@ -161,7 +161,6 @@ button{
 
 #landing{
     visibility: visible;
-	border: solid 1px red;
 	max-width: 500px;
 	min-height: 150px;
 	margin: 0 auto;
@@ -170,7 +169,6 @@ button{
 
 #create{
     display: none;
-	border: solid 1px blue;
 	margin: 0 auto;
 	max-width: 500px;
 }
@@ -181,7 +179,6 @@ button{
 
 #join{
     display: none;
-	border: solid 1px yellow;
 	margin: 0 auto;
 	max-width: 500px;
 }
