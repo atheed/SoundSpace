@@ -2,15 +2,17 @@ var express = require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
+var http = require('http').Server(app);
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
+var io = require('socket.io')(http);
 var options = {
     root: __dirname
 }
 
 //Connect to MongoDB database
 var DB_PORT = "27017";
-mongoose.connect('mongodb://localhost:' + DB_PORT+"/301db");
+mongoose.connect('mongodb://localhost:' + DB_PORT + "/301db");
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
@@ -51,8 +53,105 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.get('/id3-minimized.js', function(req, res){
-    res.sendfile('./static/JavaScript-ID3-Reader/dist/id3-minimized.js');
+io.on('connection', function (socket) {
+    console.log("a user connected");
+    socket.on('availableSongUpdate', function (json) {
+        Room.findOne({
+                roomId: json.room
+            },
+            function (err, room) {
+                if (err) {
+                    response.status(500);
+                    response.send({
+                        "ErrorCode": "INTERNAL_SERVER_ERROR"
+                    });
+                    return response.end();
+                }
+                if (!room) { //if room not found, return 400
+                    response.status(400);
+                    response.send({
+                        "ErrorCode": "ROOM_NOT_FOUND"
+                    });
+                    return response.end();
+                }
+                if (json.updateType === "add") {
+                    for (i = 0; i < json.songs.length; i++) {
+                        room.availableSongs.push(json.songs[i]);
+                    }
+                } else if (json.updateType === "remove") {
+                    for (i = 0; i < json.songs.length; i++) {
+                        room.availableSongs.splice(indexOf(json.songs[i]), 1);
+                    }
+                } else {
+                    response.status(400);
+                    response.send({
+                        "ErrorCode": "BAD_REQUEST"
+                    });
+                    return response.end();
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                socket.emit('availableSongClientUpdate', room.availableSongs);
+            });
+    });
+
+    socket.on('playlistUpdate', function (json) {
+        Room.findOne({
+                roomId: json.room
+            },
+            function (err, room) {
+                if (err) {
+                    response.status(500);
+                    response.send({
+                        "ErrorCode": "INTERNAL_SERVER_ERROR"
+                    });
+                    return response.end();
+                }
+                if (!room) { //if room not found, return 400
+                    response.status(400);
+                    response.send({
+                        "ErrorCode": "ROOM_NOT_FOUND"
+                    });
+                    return response.end();
+                }
+                if (json.updateType === "add") {
+                    for (i = 0; i < json.songs.length; i++) {
+                        room.upcomingSongs.push(json.songs[i]);
+                    }
+                } else if (json.updateType === "remove") {
+                    for (i = 0; i < json.songs.length; i++) {
+                        room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
+                    }
+                } else {
+                    response.status(400);
+                    response.send({
+                        "ErrorCode": "BAD_REQUEST"
+                    });
+                    return response.end();
+                }
+                room.save(function (err) {
+                    if (err) {
+                        response.status(500);
+                        response.send({
+                            "ErrorCode": "INTERNAL_SERVER_ERROR"
+                        });
+                        return response.end();
+                    }
+                });
+                socket.emit('playlistClientUpdate', room.upcomingSongs);
+            });
+    });
+});
+
+app.get('/id3-minimized.js', function (req, res) {
+    res.sendfile('./static/id3-minimized.js');
 });
 
 app.post('/joinRoom', function (request, response) {
@@ -76,7 +175,7 @@ app.post('/joinRoom', function (request, response) {
                 return response.end();
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
-                room.clientUsers.append(request.body.username)
+                room.clientUsers.push(request.body.username)
                 response.status(200); //returns 200 on success
                 response.send(room); //returns user as response
                 return response.end();
@@ -128,7 +227,7 @@ app.post('/createRoom', function (request, response) {
                 return response.end();
             }
         });
-})
+});
 
 //todo: implement placeholder functions once dynamic playlist works
 
@@ -154,7 +253,7 @@ app.post('/addAvailableSong', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.availableSongs.append({
+                    room.availableSongs.push({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     });
@@ -196,7 +295,7 @@ app.post('/addSongToPlaylist', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.upcomingSongs.append({
+                    room.upcomingSongs.push({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     });
@@ -238,7 +337,7 @@ app.post('/removeAvailableSong', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.availableSongs = room.availableSongs.splice(getIndex({
+                    room.availableSongs.splice(getIndex({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     }), 1);
@@ -280,7 +379,7 @@ app.post('/removeSongFromPlaylist', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.upcomingSongs = room.upcomingSongs.splice(getIndex({
+                    room.upcomingSongs.splice(getIndex({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     }), 1);
@@ -346,10 +445,10 @@ app.get('/playNextSong', function (request, response) {
                 });
                 return response.end();
             }
-            room.playedSongs.append(currentSong);
+            room.playedSongs.push(currentSong);
             if (room.upcomingSongs[0]) {
                 room.currentSong = room.upcomingSongs[0];
-                room.upcomingSongs = room.upcomingSongs.splice(0, 1);
+                room.upcomingSongs.splice(0, 1);
             }
             room.save(function (err) {
                 if (err) {
@@ -365,15 +464,33 @@ app.get('/playNextSong', function (request, response) {
         });
 });
 
+app.post('/getAvailableSongs', function (request, response) {
+    console.log('retrieving available songs');
+    Room.findOne({
+            roomId: request.body["roomName"]
+        },
+        function (err, room) {
+            if (err) {
+                response.status(500);
+                response.send({
+                    "ErrorCode": "INTERNAL_SERVER_ERROR"
+                });
+                return response.end();
+            }
+            if (!room) { //if room not found, return 400
+                response.status(400);
+                response.send({
+                    "ErrorCode": "ROOM_NOT_FOUND"
+                });
+                return response.end();
+            }
+            response.status(200);
+            response.send(room.availableSongs);
+            return response.end();
+        });
+});
+
 var server = app.listen(3000, function () {
     var host = server.address().address;
     var port = server.address().port;
 });
-
-var getPlayListName = function (body) {
-    return null;
-}
-
-var getIndex = function (body) {
-    return null;
-}
