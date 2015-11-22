@@ -6,6 +6,7 @@
         "express": "3.x",
         "body-parser": "https://github.com/expressjs/body-parser",
         "mongoose": "*",
-        "id3-reader": "https://github.com/aadsm/JavaScript-ID3-Reader"
+        "id3-reader": "https://github.com/aadsm/JavaScript-ID3-Reader",
+        "socket.io" : "*"
     }
 }
