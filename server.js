@@ -74,7 +74,7 @@ io.on('connection', function (socket) {
                 }
                 if (json.updateType === "add") {
                     for (i = 0; i < json.songs.length; i++) {
-                        room.availableSongs.append(json.songs[i]);
+                        room.availableSongs.push(json.songs[i]);
                     }
                 } else if (json.updateType === "remove") {
                     for (i = 0; i < json.songs.length; i++) {
@@ -121,7 +121,7 @@ io.on('connection', function (socket) {
                 }
                 if (json.updateType === "add") {
                     for (i = 0; i < json.songs.length; i++) {
-                        room.upcomingSongs.append(json.songs[i]);
+                        room.upcomingSongs.push(json.songs[i]);
                     }
                 } else if (json.updateType === "remove") {
                     for (i = 0; i < json.songs.length; i++) {
@@ -173,7 +173,7 @@ app.post('/joinRoom', function (request, response) {
                 return response.end();
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
-                room.clientUsers.append(request.body.username)
+                room.clientUsers.push(request.body.username)
                 response.status(200); //returns 200 on success
                 response.send(room); //returns user as response
                 return response.end();
@@ -251,7 +251,7 @@ app.post('/addAvailableSong', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.availableSongs.append({
+                    room.availableSongs.push({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     });
@@ -293,7 +293,7 @@ app.post('/addSongToPlaylist', function (request, response) {
                 return response.end();
             } else {
                 for (i = 0; i < songs.length; i++) {
-                    room.upcomingSongs.append({
+                    room.upcomingSongs.push({
                         songName: request.body.songs[i].fileName,
                         songPath: request.body.songs[i].filePath
                     });
@@ -443,7 +443,7 @@ app.get('/playNextSong', function (request, response) {
                 });
                 return response.end();
             }
-            room.playedSongs.append(currentSong);
+            room.playedSongs.push(currentSong);
             if (room.upcomingSongs[0]) {
                 room.currentSong = room.upcomingSongs[0];
                 room.upcomingSongs.splice(0, 1);
