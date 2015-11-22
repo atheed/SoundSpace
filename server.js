@@ -2,9 +2,10 @@ var express = require('express');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var app = express();
+var http = require('http').Server(app);
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser'); //for JSON parsing for request body
-var io = require('socket.io')(server);
+var io = require('socket.io')(http);
 var options = {
     root: __dirname
 }
@@ -53,6 +54,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 io.on('connection', function (socket) {
+    console.log("a user connected");
     socket.on('availableSongUpdate', function (json) {
         Room.findOne({
                 roomId: json.room
