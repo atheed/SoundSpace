@@ -153,6 +153,19 @@ $(document).on('click', '.undoDownvoteButton', function() {
     document.getElementById(del).style.display = "inline";
 });
 
+/* Shows/hides the person who suggested the song
+*  Credits to Matt Kruse for the idea 
+*/
+$(function() {
+    $('tr.parent')
+        .css("cursor","pointer")
+        .click(function(){
+            $(this).siblings('.child-'+this.id).toggle();
+        });
+    $('tr[@class^=child-]').hide().children('td');
+});
+
+
 
 /* Makes an AJAX call to get the playlist from the back-end
 *  TODO: Design decision : one playlist per room?
@@ -393,3 +406,4 @@ function entryFieldsFilled(){
     }
     return true;
 }
+
