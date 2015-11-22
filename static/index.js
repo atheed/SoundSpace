@@ -80,6 +80,7 @@ $(document).on('click', '.backButton', function(){
         $("#landing").show();
         $("#create").hide();
         $("#join").hide();
+        $('.passwordField').val('');
     }
 });
 
