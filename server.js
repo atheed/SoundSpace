@@ -151,7 +151,7 @@ io.on('connection', function (socket) {
 });
 
 app.get('/id3-minimized.js', function (req, res) {
-    res.sendfile('./static/JavaScript-ID3-Reader/dist/id3-minimized.js');
+    res.sendfile('./static/id3-minimized.js');
 });
 
 app.post('/joinRoom', function (request, response) {
