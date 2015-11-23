@@ -3,7 +3,7 @@ var userInput;
 var passwordInput;
 var currentRoomName;
 var currentUserName;
-var socket = io.connect('http://localhost:3000');
+//var socket = io();
 
 $(window).ready(function() {
     getFileInput();
@@ -76,9 +76,9 @@ $(document).on('click', '#joinRoomButton', function(){
     if(entryFieldsFilled()){
         $("#errorField").text("");
         //Private room functionality not yet implemented.
-        //$("#landing").hide();
+        $("#landing").hide();
+        $("#playlist").show();
         //$("#join").show();
-        
         joinRoom(roomInput, userInput, "");
         //Error handling for private rooms
         //Trigger password input
@@ -153,6 +153,19 @@ $(document).on('click', '.undoDownvoteButton', function() {
     document.getElementById(del).style.display = "inline";
 });
 
+/* Shows/hides the person who suggested the song
+*  Credits to Matt Kruse for the idea 
+*/
+$(function() {
+    $('tr.parent')
+        .css("cursor","pointer")
+        .click(function(){
+            $(this).siblings('.child-'+this.id).toggle();
+        });
+    $('tr[@class^=child-]').hide().children('td');
+});
+
+
 
 /* Makes an AJAX call to get the playlist from the back-end
 *  TODO: Design decision : one playlist per room?
@@ -165,6 +178,7 @@ function getPlaylist(){
       url: "/currentPlaylist",
       dataType: "json"
     }).done(function(data) {
+        alert(data);
         var table = '<div class="datagrid showHideQueue">' + '<table id="queue">' + 
             '<thead><tr><th>Song</th><th>Artist</th><th>Duration</th><th>Genre</th><th>Year</th><th>Actions</th></tr></thead>' + 
             '<tbody></tbody></table></div>'
@@ -268,9 +282,9 @@ function getAvailableSongs(){
 *   which may be none...
 */
 function joinRoom(playlistNameInput, userNameInput, passwordInput){
-    $.ajax({
+    $.ajax({  
       type: "POST",
-      url: "/logIntoPlaylist",
+      url: "/joinRoom",
       dataType: "json",
       playListName: playlistNameInput,
       userName : userNameInput,
@@ -286,7 +300,8 @@ function joinRoom(playlistNameInput, userNameInput, passwordInput){
     })
     .done(function(data){
         console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
-        //TODO: Trigger loading room/playlist division
+        getPlaylist();
+        getAvailableSongs();
     });
 };
 
@@ -308,7 +323,6 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
-            songnames.push("");
         }
         readFile(fileInput.files, 0);
     });
@@ -322,7 +336,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function() {
-                songnames[i] = getSongName(songurls[i]);
+                songnames[i] = getSongName(i);
             }, {
                 tags: ["title","artist","album","picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -345,7 +359,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songnames[j],
+            songName: songames[j],
             songPath: songpaths[j],
             room: "demo"
         })
@@ -394,3 +408,4 @@ function entryFieldsFilled(){
     }
     return true;
 }
+
