@@ -225,9 +225,8 @@ app.post('/createRoom', function (request, response) {
                 console.log(newRoom);
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
-                io.emit('userJoin', room);
                 response.status(201);
-                response.send(room);
+                response.send(newRoom);
                 return response.end();
             }
         });
