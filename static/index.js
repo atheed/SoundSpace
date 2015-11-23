@@ -267,6 +267,7 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
+            songnames.push("");
         }
         readFile(fileInput.files, 0);
     });
