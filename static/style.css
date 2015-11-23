@@ -92,14 +92,15 @@ form {
 }
 
 table {
-	/*background-color: #1a1a1a;*/
 	background: rgba(26, 26, 26, 0.4);
 	color: #d9d9d9;
-	min-width:100%; max-width:800px
+	min-width:100%; 
+	max-width:800px;
+	font-size: 15px;
+	text-align: left;
 }
 
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-	/*background-color: #404040;*/
 	background-color: rgb(34, 68, 68);
 }
 
