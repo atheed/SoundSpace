@@ -71,7 +71,7 @@ io.on('connection', function (socket) {
     console.log(socket.handshake.session);
     socket.on('availableSongUpdate', function (json) {
         Room.findOne({
-                roomId: json.room
+                roomName: json.roomName
             },
             function (err, room) {
                 if (json.updateType === "add") {
@@ -90,7 +90,7 @@ io.on('connection', function (socket) {
 
     socket.on('playlistUpdate', function (json) {
         Room.findOne({
-                roomId: json.room
+                roomName: json.roomName
             },
             function (err, room) {
                 if (json.updateType === "add") {
@@ -112,7 +112,7 @@ io.on('connection', function (socket) {
 
     socket.on('playNextSong', function (json) {
         Room.findOne({
-                roomId: json.room
+                roomName: json.roomName
             },
             function (err, room) {
                 if (room.upcomingSongs.length > 0) {
@@ -134,8 +134,9 @@ app.get('/id3-minimized.js', function (req, res) {
 
 app.post('/joinRoom', function (request, response) {
     console.log('joining room');
+    console.log(request.body);
     Room.findOne({
-            roomId: request.body["roomName"]
+            roomName: request.body.roomName
         },
         function (err, room) {
             if (err) {
@@ -143,6 +144,7 @@ app.post('/joinRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "INTERNAL_SERVER_ERROR"
                 });
+                console.error(err);
                 return response.end();
             }
             if (!room) { //if room not found, return 400
@@ -150,11 +152,13 @@ app.post('/joinRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "ROOM_NOT_FOUND"
                 });
+                console.log("roomnotfound");
                 return response.end();
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
-                req.session.username = (request.body.username);
-                req.session.room = (request.body.roomId);
+                console.log("room joined");
+                request.session.username = (request.body.username);
+                request.session.room = (request.body.roomName);
                 room.clientUsers.push(request.body.username)
                 room.save(function (err) {
                     if (err) {
@@ -162,6 +166,7 @@ app.post('/joinRoom', function (request, response) {
                         response.send({
                             "ErrorCode": "INTERNAL_SERVER_ERROR"
                         });
+                        console.error(err);
                         return response.end();
                     }
                 });
@@ -174,6 +179,7 @@ app.post('/joinRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "BAD_USERNAME"
                 });
+                console.log("usernametaken");
                 return response.end();
             }
         });
@@ -181,8 +187,9 @@ app.post('/joinRoom', function (request, response) {
 
 app.post('/createRoom', function (request, response) {
     console.log('creating room');
+    console.log(request.body);
     Room.findOne({
-            roomId: request.body["roomName"]
+            roomName: request.body.roomName
         },
         function (err, room) {
             if (err) {
@@ -190,18 +197,19 @@ app.post('/createRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "INTERNAL_SERVER_ERROR"
                 });
+                console.error(err);
                 return response.end();
-                return console.error(err);
             }
             if (room) { //if room not found, return 400
                 response.status(400);
                 response.send({
                     "ErrorCode": "ROOM_NAME_TAKEN"
                 });
+                console.error("ROOM_NAME_TAKEN");
                 return response.end();
             } else {
                 var newRoom = new Room;
-                newRoom.name = request.body.name;
+                newRoom.roomName = request.body.roomName;
                 newRoom.hostUser = request.body.username;
                 newRoom.password = request.body.password;
                 newRoom.save(function (err) {
@@ -210,11 +218,13 @@ app.post('/createRoom', function (request, response) {
                         response.send({
                             "ErrorCode": "INTERNAL_SERVER_ERROR"
                         });
+                        console.error(err);
                         return response.end();
                     }
                 });
-                req.session.username = (request.body.username);
-                req.session.room = (request.body.roomId);
+                console.log(newRoom);
+                request.session.username = (request.body.username);
+                request.session.room = (request.body.roomName);
                 io.emit('userJoin', room);
                 response.status(201);
                 response.send(room);
