@@ -172,7 +172,7 @@ $(function () {
  *   which may be none...
  */
 
-$("#nextSong").click(function() {
+$(document).on('click', '#nextSong', function() {
     console.log(curr, playlist.length);
     if (curr != playlist.length - 1) {
         curr += 1;
@@ -180,7 +180,7 @@ $("#nextSong").click(function() {
     }
 });
 
-$("#prevSong").click(function() {
+$(document).on('click', '#prevSong',function() {
     if (curr != 0) {
         curr -=1;
         replaceAudioElement($("audio").prop("volume"));
@@ -297,7 +297,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songames[j],
+            songName: songnames[j],
             songPath: songpaths[j],
             room: "demo"
         })
