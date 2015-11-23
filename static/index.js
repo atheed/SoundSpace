@@ -77,7 +77,6 @@ $(document).on('click', '#joinRoomButton', function () {
         $("#errorField").text("");
         //Private room functionality not yet implemented.
         $("#landing").hide();
-        $("#playlist").show();
         //$("#join").show();
         joinRoom(roomInput, userInput, "");
         getFileInput();
@@ -198,6 +197,12 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
                 username: userNameIn,
                 password: passwordIn,
             },
+            success: function (data) {
+                console.log("roomcreated");
+                $("#create").hide();
+                $("#playlist").show();
+                //TODO: Trigger Join to the newly created room
+            },
             statusCode: {
                 400: function () {
                     $("#errorField").text("Room Name already exists. Select a different room name.");
@@ -208,6 +213,9 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
             }
         })
         .done(function (data) {
+            console.log("roomcreated");
+            $("#create").hide();
+            $("#playlist").show();
             //TODO: Trigger Join to the newly created room
         });
 };
@@ -240,6 +248,7 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
             }
         })
         .done(function (data) {
+            $("#playlist").show();
             console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
         });
 };
