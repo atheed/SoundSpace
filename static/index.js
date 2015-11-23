@@ -63,7 +63,7 @@ $(document).on('click', '#privRadio', function () {
  * Resets and hides the password field
  */
 $(document).on('click', '#pubRadio', function () {
-    $('[name = "pswdfield"]').val("");
+    $('[name = "pswdfield"]').val();
     $("#create > .input-field > input").hide();
 });
 
@@ -267,6 +267,7 @@ function getFileInput() {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
+            songnames.push("");
         }
         readFile(fileInput.files, 0);
     });

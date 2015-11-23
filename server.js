@@ -157,7 +157,6 @@ app.post('/joinRoom', function (request, response) {
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
                 console.log("room joined");
-                
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
                 room.clientUsers.push(request.body.username)
@@ -214,6 +213,10 @@ app.post('/createRoom', function (request, response) {
                 newRoom.roomName = request.body.roomName;
                 newRoom.hostUser = request.body.username;
                 newRoom.password = request.body.password;
+                newRoom.availableSongs = [];
+                newRoom.upcomingSongs = [];
+                newRoom.playedSongs = [];
+                newRoom.currentSong = {};
                 newRoom.save(function (err) {
                     if (err) {
                         response.status(500);
