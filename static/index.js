@@ -6,7 +6,7 @@ var currentUserName;
 var socket = io();
 
 $(window).ready(function () {
-    //getFileInput();
+    
     //getPlaylist();
 });
 
@@ -78,6 +78,7 @@ $(document).on('click', '#joinRoomButton', function () {
         //Private room functionality not yet implemented.
         //$("#join").show();
         joinRoom(roomInput, userInput, "");
+        getFileInput();
         //Error handling for private rooms
         //Trigger password input
     }
@@ -168,6 +169,22 @@ $(function () {
  * TODO: Add any additional consequent action necessary to .done()
  *   which may be none...
  */
+
+$(document).on('click', '#nextSong', function() {
+    console.log(curr, playlist.length);
+    if (curr != playlist.length - 1) {
+        curr += 1;
+        replaceAudioElement($("audio").prop("volume"));
+    }
+});
+
+$(document).on('click', '#prevSong',function() {
+    if (curr != 0) {
+        curr -=1;
+        replaceAudioElement($("audio").prop("volume"));
+    }
+});
+
 function createRoom(roomNameIn, userNameIn, passwordIn) {
     console.log(roomNameIn, userNameIn, passwordIn);
     $.ajax({
@@ -263,7 +280,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function () {
-                songnames[i] = getSongName(i);
+                songnames[i] = getSongName(songurls[i]);
             }, {
                 tags: ["title", "artist", "album", "picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -285,7 +302,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songames[j],
+            songName: songnames[j],
             songPath: songpaths[j],
             room: "demo"
         })
@@ -316,6 +333,7 @@ function replaceAudioElement(volume) {
  * TODO: change function to send data to server
  */
 function getSongName(url) {
+    console.log(url);
     var tags = ID3.getAllTags(url);
     return tags.title;
 }
