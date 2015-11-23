@@ -89,6 +89,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playlistUpdate', function (json) {
+        console.log(json);
         Room.findOne({
                 roomName: json.roomName
             },

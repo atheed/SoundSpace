@@ -6,7 +6,7 @@ var currentUserName;
 var socket = io();
 
 $(window).ready(function () {
-    
+
     //getPlaylist();
 });
 
@@ -170,16 +170,21 @@ $(function () {
  *   which may be none...
  */
 
+<<<<<<< HEAD
 $(document).on('click', '#nextSong', function() {
+=======
+$(document).on('click', '#nextSong', function () {
+    console.log(curr, playlist.length);
+>>>>>>> 6d347825d513e3dd6acfba4b43c20eb4e5e7fb2e
     if (curr != playlist.length - 1) {
         curr += 1;
         replaceAudioElement($("audio").prop("volume"));
     }
 });
 
-$(document).on('click', '#prevSong',function() {
+$(document).on('click', '#prevSong', function () {
     if (curr != 0) {
-        curr -=1;
+        curr -= 1;
         replaceAudioElement($("audio").prop("volume"));
     }
 });
@@ -302,14 +307,14 @@ function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
             songName: songnames[j],
-            songPath: songpaths[j],
-            room: "demo"
+            songPath: songpaths[j]
         })
     }
     console.log(songs);
     socket.emit("playlistUpdate", {
         songs: songs,
-        updateType: "add"
+        updateType: "add",
+        roomName: "demo"
     });
 }
 
