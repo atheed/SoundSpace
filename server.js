@@ -157,6 +157,7 @@ app.post('/joinRoom', function (request, response) {
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
                 console.log("room joined");
+                
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
                 room.clientUsers.push(request.body.username)
@@ -170,6 +171,7 @@ app.post('/joinRoom', function (request, response) {
                         return response.end();
                     }
                 });
+                console.log(room.clientUsers);
                 response.status(200); //returns 200 on success
                 io.emit('userJoin', room);
                 response.send(room); //returns user as response
@@ -225,9 +227,8 @@ app.post('/createRoom', function (request, response) {
                 console.log(newRoom);
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
-                io.emit('userJoin', room);
                 response.status(201);
-                response.send(room);
+                response.send(newRoom);
                 return response.end();
             }
         });

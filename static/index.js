@@ -6,7 +6,7 @@ var currentUserName;
 var socket = io();
 
 $(window).ready(function () {
-    //getFileInput();
+    
     //getPlaylist();
 });
 
@@ -76,9 +76,9 @@ $(document).on('click', '#joinRoomButton', function () {
     if (entryFieldsFilled()) {
         $("#errorField").text("");
         //Private room functionality not yet implemented.
-        $("#landing").hide();
         //$("#join").show();
         joinRoom(roomInput, userInput, "");
+        getFileInput();
         //Error handling for private rooms
         //Trigger password input
     }
@@ -169,38 +169,49 @@ $(function () {
  * TODO: Add any additional consequent action necessary to .done()
  *   which may be none...
  */
+
+$(document).on('click', '#nextSong', function() {
+    console.log(curr, playlist.length);
+    if (curr != playlist.length - 1) {
+        curr += 1;
+        replaceAudioElement($("audio").prop("volume"));
+    }
+});
+
+$(document).on('click', '#prevSong',function() {
+    if (curr != 0) {
+        curr -=1;
+        replaceAudioElement($("audio").prop("volume"));
+    }
+});
+
 function createRoom(roomNameIn, userNameIn, passwordIn) {
     console.log(roomNameIn, userNameIn, passwordIn);
     $.ajax({
-            type: "POST",
-            url: "/createRoom",
-            dataType: "json",
-            data: {
-                roomName: roomNameIn,
-                username: userNameIn,
-                password: passwordIn,
-            },
-            success: function (data) {
+        type: "POST",
+        url: "/createRoom",
+        dataType: "json",
+        data: {
+            roomName: roomNameIn,
+            username: userNameIn,
+            password: passwordIn,
+        },
+        statusCode: {
+            201: function (data) {
                 console.log("roomcreated");
+                console.log(data);
                 $("#create").hide();
                 $("#playlist").show();
                 //TODO: Trigger Join to the newly created room
             },
-            statusCode: {
-                400: function () {
-                    $("#errorField").text("Room Name already exists. Select a different room name.");
-                },
-                500: function () {
-                    $("#errorField").text("Internal Server Error");
-                }
+            400: function () {
+                $("#errorField").text("Room Name already exists. Select a different room name.");
+            },
+            500: function () {
+                $("#errorField").text("Internal Server Error");
             }
-        })
-        .done(function (data) {
-            console.log("roomcreated");
-            $("#create").hide();
-            $("#playlist").show();
-            //TODO: Trigger Join to the newly created room
-        });
+        }
+    })
 };
 
 
@@ -213,27 +224,29 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
 function joinRoom(roomNameInput, userNameInput, passwordInput) {
     var data = {
         roomName: roomNameInput,
-        userName: userNameInput,
+        username: userNameInput,
         password: passwordInput
     };
     $.ajax({
-            type: "POST",
-            url: "/joinRoom",
-            dataType: "json",
-            data: data,
-            statusCode: {
-                400: function () {
-                    $("#errorField").text("Room not found.");
-                },
-                500: function () {
-                    $("#errorField").text("Internal Server Error.");
-                }
+        type: "POST",
+        url: "/joinRoom",
+        dataType: "json",
+        data: data,
+        statusCode: {
+            200: function (data) {
+                $("#landing").hide();
+                $("#playlist").show();
+                console.log(data);
+                console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
+            },
+            400: function () {
+                $("#errorField").text("Room not found.");
+            },
+            500: function () {
+                $("#errorField").text("Internal Server Error.");
             }
-        })
-        .done(function (data) {
-            $("#playlist").show();
-            console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
-        });
+        }
+    })
 };
 
 var playlist = [];
@@ -267,7 +280,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function () {
-                songnames[i] = getSongName(i);
+                songnames[i] = getSongName(songurls[i]);
             }, {
                 tags: ["title", "artist", "album", "picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -289,7 +302,7 @@ function readFile(files, i) {
 function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
-            songName: songames[j],
+            songName: songnames[j],
             songPath: songpaths[j],
             room: "demo"
         })
@@ -320,6 +333,7 @@ function replaceAudioElement(volume) {
  * TODO: change function to send data to server
  */
 function getSongName(url) {
+    console.log(url);
     var tags = ID3.getAllTags(url);
     return tags.title;
 }
