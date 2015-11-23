@@ -29,6 +29,7 @@ $(document).on('click', '#createContinueButton', function () {
     passwordInput = $('[name = "pswdfield"]').val();
     $("#errorField").text("");
     createRoom(roomInput, userInput, passwordInput);
+    
 });
 
 /*
@@ -78,7 +79,6 @@ $(document).on('click', '#joinRoomButton', function () {
         //Private room functionality not yet implemented.
         //$("#join").show();
         joinRoom(roomInput, userInput, "");
-        getFileInput();
         //Error handling for private rooms
         //Trigger password input
     }
@@ -170,8 +170,12 @@ $(function () {
  *   which may be none...
  */
 
+<<<<<<< HEAD
+$(document).on('click', '#nextSong', function() {
+=======
 $(document).on('click', '#nextSong', function () {
     console.log(curr, playlist.length);
+>>>>>>> 6d347825d513e3dd6acfba4b43c20eb4e5e7fb2e
     if (curr != playlist.length - 1) {
         curr += 1;
         replaceAudioElement($("audio").prop("volume"));
@@ -186,7 +190,6 @@ $(document).on('click', '#prevSong', function () {
 });
 
 function createRoom(roomNameIn, userNameIn, passwordIn) {
-    console.log(roomNameIn, userNameIn, passwordIn);
     $.ajax({
         type: "POST",
         url: "/createRoom",
@@ -202,6 +205,7 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
                 console.log(data);
                 $("#create").hide();
                 $("#playlist").show();
+                getFileInput();
                 //TODO: Trigger Join to the newly created room
             },
             400: function () {
@@ -281,7 +285,7 @@ function readFile(files, i) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
             ID3.loadTags(songurls[i], function () {
-                songnames[i] = getSongName(songurls[i]);
+                writeSongName(i);
             }, {
                 tags: ["title", "artist", "album", "picture"],
                 dataReader: ID3.FileAPIReader(file)
@@ -290,7 +294,6 @@ function readFile(files, i) {
                 if (curr == -1) {
                     curr = 0;
                     replaceAudioElement(1);
-                    sendUpdate();
                 }
             } else {
                 readFile(files, i + 1);
@@ -307,6 +310,7 @@ function sendUpdate() {
             songPath: songpaths[j]
         })
     }
+    console.log(songs);
     socket.emit("playlistUpdate", {
         songs: songs,
         updateType: "add",
@@ -333,10 +337,13 @@ function replaceAudioElement(volume) {
 /*Displays the song info after loaded
  * TODO: change function to send data to server
  */
-function getSongName(url) {
-    console.log(url);
+function writeSongName(i) {
+    var url = songurls[i];
     var tags = ID3.getAllTags(url);
-    return tags.title;
+    songnames[i] = tags.title;
+    if (i == songnames.length-1) {
+        sendUpdate();
+    }
 }
 
 function entryFieldsFilled() {
