@@ -207,7 +207,7 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
 function joinRoom(roomNameInput, userNameInput, passwordInput) {
     var data = {
         roomName: roomNameInput,
-        userName: userNameInput,
+        username: userNameInput,
         password: passwordInput
     };
     $.ajax({
