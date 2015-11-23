@@ -170,12 +170,7 @@ $(function () {
  *   which may be none...
  */
 
-<<<<<<< HEAD
 $(document).on('click', '#nextSong', function() {
-=======
-$(document).on('click', '#nextSong', function () {
-    console.log(curr, playlist.length);
->>>>>>> 6d347825d513e3dd6acfba4b43c20eb4e5e7fb2e
     if (curr != playlist.length - 1) {
         curr += 1;
         replaceAudioElement($("audio").prop("volume"));
