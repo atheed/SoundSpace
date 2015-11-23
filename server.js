@@ -201,7 +201,7 @@ app.post('/createRoom', function (request, response) {
                 return response.end();
             } else {
                 var newRoom = new Room;
-                newRoom.name = request.body.name;
+                newRoom.roomName = request.body.name;
                 newRoom.hostUser = request.body.username;
                 newRoom.password = request.body.password;
                 newRoom.save(function (err) {
@@ -213,6 +213,7 @@ app.post('/createRoom', function (request, response) {
                         return response.end();
                     }
                 });
+                console.log(request.body);
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomId);
                 io.emit('userJoin', room);
