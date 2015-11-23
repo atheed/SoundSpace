@@ -54,6 +54,7 @@ h1 {
 
 #currently_playing {
 	text-align: center;
+	margin: 0 auto;
 }
 
 #queue_playlist {
@@ -207,6 +208,17 @@ table {
 	text-align: center;
 	color: #fff;
 	margin: -16px -16px 16px -16px;
+}
+
+.label-danger {
+	display: table;
+	margin:0 auto;
+}
+
+#FileInput {
+	margin-left: 45%;
+	color: #fff;
+	font-size: 12px;
 }
 
 input[type=radio].css-checkbox {
