@@ -6,7 +6,7 @@ var currentUserName;
 var socket = io();
 
 $(window).ready(function () {
-    
+
     //getPlaylist();
 });
 
@@ -170,7 +170,7 @@ $(function () {
  *   which may be none...
  */
 
-$(document).on('click', '#nextSong', function() {
+$(document).on('click', '#nextSong', function () {
     console.log(curr, playlist.length);
     if (curr != playlist.length - 1) {
         curr += 1;
@@ -178,9 +178,9 @@ $(document).on('click', '#nextSong', function() {
     }
 });
 
-$(document).on('click', '#prevSong',function() {
+$(document).on('click', '#prevSong', function () {
     if (curr != 0) {
-        curr -=1;
+        curr -= 1;
         replaceAudioElement($("audio").prop("volume"));
     }
 });
@@ -304,13 +304,13 @@ function sendUpdate() {
     for (j = 0; j < songnames.length; j++) {
         songs.push({
             songName: songnames[j],
-            songPath: songpaths[j],
-            room: "demo"
+            songPath: songpaths[j]
         })
     }
     socket.emit("playlistUpdate", {
         songs: songs,
-        updateType: "add"
+        updateType: "add",
+        roomName: "demo"
     });
 }
 
