@@ -76,9 +76,9 @@ $(document).on('click', '#joinRoomButton', function(){
     if(entryFieldsFilled()){
         $("#errorField").text("");
         //Private room functionality not yet implemented.
-        //$("#landing").hide();
+        $("#landing").hide();
+        $("#playlist").show();
         //$("#join").show();
-        
         joinRoom(roomInput, userInput, "");
         //Error handling for private rooms
         //Trigger password input
@@ -178,6 +178,7 @@ function getPlaylist(){
       url: "/currentPlaylist",
       dataType: "json"
     }).done(function(data) {
+        alert(data);
         var table = '<div class="datagrid showHideQueue">' + '<table id="queue">' + 
             '<thead><tr><th>Song</th><th>Artist</th><th>Duration</th><th>Genre</th><th>Year</th><th>Actions</th></tr></thead>' + 
             '<tbody></tbody></table></div>'
@@ -281,9 +282,9 @@ function getAvailableSongs(){
 *   which may be none...
 */
 function joinRoom(playlistNameInput, userNameInput, passwordInput){
-    $.ajax({
+    $.ajax({  
       type: "POST",
-      url: "/logIntoPlaylist",
+      url: "/joinRoom",
       dataType: "json",
       playListName: playlistNameInput,
       userName : userNameInput,
@@ -299,7 +300,8 @@ function joinRoom(playlistNameInput, userNameInput, passwordInput){
     })
     .done(function(data){
         console.log(userNameInput + " logged into: " + playlistNameInput + " successfully.");
-        //TODO: Trigger loading room/playlist division
+        getPlaylist();
+        getAvailableSongs();
     });
 };
 
