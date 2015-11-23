@@ -76,7 +76,6 @@ $(document).on('click', '#joinRoomButton', function () {
     if (entryFieldsFilled()) {
         $("#errorField").text("");
         //Private room functionality not yet implemented.
-        $("#landing").hide();
         //$("#join").show();
         joinRoom(roomInput, userInput, "");
         getFileInput();
@@ -189,35 +188,30 @@ $(document).on('click', '#prevSong',function() {
 function createRoom(roomNameIn, userNameIn, passwordIn) {
     console.log(roomNameIn, userNameIn, passwordIn);
     $.ajax({
-            type: "POST",
-            url: "/createRoom",
-            dataType: "json",
-            data: {
-                roomName: roomNameIn,
-                username: userNameIn,
-                password: passwordIn,
-            },
-            success: function (data) {
+        type: "POST",
+        url: "/createRoom",
+        dataType: "json",
+        data: {
+            roomName: roomNameIn,
+            username: userNameIn,
+            password: passwordIn,
+        },
+        statusCode: {
+            201: function (data) {
                 console.log("roomcreated");
+                console.log(data);
                 $("#create").hide();
                 $("#playlist").show();
                 //TODO: Trigger Join to the newly created room
             },
-            statusCode: {
-                400: function () {
-                    $("#errorField").text("Room Name already exists. Select a different room name.");
-                },
-                500: function () {
-                    $("#errorField").text("Internal Server Error");
-                }
+            400: function () {
+                $("#errorField").text("Room Name already exists. Select a different room name.");
+            },
+            500: function () {
+                $("#errorField").text("Internal Server Error");
             }
-        })
-        .done(function (data) {
-            console.log("roomcreated");
-            $("#create").hide();
-            $("#playlist").show();
-            //TODO: Trigger Join to the newly created room
-        });
+        }
+    })
 };
 
 
@@ -234,23 +228,25 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
         password: passwordInput
     };
     $.ajax({
-            type: "POST",
-            url: "/joinRoom",
-            dataType: "json",
-            data: data,
-            statusCode: {
-                400: function () {
-                    $("#errorField").text("Room not found.");
-                },
-                500: function () {
-                    $("#errorField").text("Internal Server Error.");
-                }
+        type: "POST",
+        url: "/joinRoom",
+        dataType: "json",
+        data: data,
+        statusCode: {
+            200: function (data) {
+                $("#landing").hide();
+                $("#playlist").show();
+                console.log(data);
+                console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
+            },
+            400: function () {
+                $("#errorField").text("Room not found.");
+            },
+            500: function () {
+                $("#errorField").text("Internal Server Error.");
             }
-        })
-        .done(function (data) {
-            $("#playlist").show();
-            console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
-        });
+        }
+    })
 };
 
 var playlist = [];
