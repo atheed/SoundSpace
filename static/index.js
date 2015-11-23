@@ -6,7 +6,7 @@ var currentUserName;
 //var socket = io();
 
 $(window).ready(function() {
-    getFileInput();
+    //getFileInput();
     //getPlaylist();
 });
 
@@ -26,7 +26,7 @@ $(document).on('click', '#createRoomButton', function(){
 * Hides the landing page and reveals the secondary create room page if a room name is entered
 */
 $(document).on('click', '#createContinueButton', function(){
-    passwordInput = $('[name = "pswdfield"]').val("");
+    passwordInput = $('[name = "pswdfield"]').val();
     $("#errorField").text("");
     createRoom(roomInput, userInput, passwordInput);
 });
@@ -154,7 +154,7 @@ $(document).on('click', '.undoDownvoteButton', function() {
 });
 
 /* Shows/hides the person who suggested the song
-*  Credits to Matt Kruse for the idea 
+*  Credits to Matt Kruse for the idea
 */
 $(function() {
     $('tr.parent')
@@ -211,13 +211,16 @@ function getPlaylist(){
 *   which may be none...
 */
 function createRoom(roomNameIn, userNameIn, passwordIn){
+    console.log(roomNameIn, userNameIn, passwordIn);
     $.ajax({
       type: "POST",
       url: "/createRoom",
       dataType: "json",
-      name: roomNameIn,
-      username : userNameIn,
-      password : passwordIn,
+      data: {
+        name: roomNameIn,
+        username : userNameIn,
+        password : passwordIn,
+      },
       statusCode: {
           400: function(){
               $("#errorField").text("Room Name already exists. Select a different room name.");
