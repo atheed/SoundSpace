@@ -18,6 +18,7 @@ $(document).on('click', '#createRoomButton', function () {
     if (entryFieldsFilled()) {
         $("#landing").hide();
         $("#create").show();
+        $("#errorField").text("");
     }
 });
 
@@ -94,6 +95,7 @@ $(document).on('click', '.backButton', function () {
         $("#create").hide();
         $("#join").hide();
         $('.passwordField').val('');
+        $("#errorField").text("");
     }
 });
 
