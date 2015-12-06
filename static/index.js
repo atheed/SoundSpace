@@ -205,6 +205,7 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
                 $("#create").hide();
                 $("#playlist").show();
                 getFileInput();
+                socket.emit("joinRoom",{roomName: roomNameIn});
                 //TODO: Trigger Join to the newly created room
             },
             400: function () {
@@ -241,6 +242,7 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
                 $("#playlist").show();
                 console.log(data);
                 console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
+                socket.emit("joinRoom",{roomName: roomNameInput});
             },
             400: function () {
                 $("#errorField").text("Room not found.");
@@ -358,3 +360,7 @@ function entryFieldsFilled() {
     }
     return true;
 }
+
+socket.on("playlistClientUpdate", function(room) {
+    console.log(room);
+});

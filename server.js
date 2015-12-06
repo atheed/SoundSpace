@@ -59,8 +59,11 @@ var sess = session({
     secret: 'csc301group',
     cookie: {
         secure: true
-    }
-})
+    },
+    saveUninitialized: true,
+    resave: true
+});
+    
 app.use(sess);
 io.use(ios(sess));
 
@@ -70,12 +73,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+var socketList = {};
+
 io.on('connection', function (socket) {
     console.log("a user connected");
     console.log(socket.handshake.session);
     socket.on('availableSongUpdate', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
                 if (json.updateType === "add") {
@@ -88,36 +93,44 @@ io.on('connection', function (socket) {
                     }
                 }
                 room.save();
-                io.emit('availableSongClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('availableSongClientUpdate', room);
+                });
             });
     });
 
     socket.on('playlistUpdate', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
-                if (json.updateType === "add") {
-                    for (i = 0; i < json.songs.length; i++) {
-                        room.upcomingSongs.push(json.songs[i]);
-                        console.log(room.currentSong, room.currentSong == "null");
-                        if (room.currentSong == "null") {
-                            room.currentSong = room.upcomingSongs.shift();
+                if(room) {
+                    if (json.updateType === "add") {
+                        for (i = 0; i < json.songs.length; i++) {
+                            room.upcomingSongs.push(json.songs[i]);
+                            if (room.currentSong == "null") {
+                                room.currentSong = room.upcomingSongs.shift();
+                            }
+                        }
+                    } else if (json.updateType === "remove") {
+                        for (i = 0; i < json.songs.length; i++) {
+                            room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
                         }
                     }
-                } else if (json.updateType === "remove") {
-                    for (i = 0; i < json.songs.length; i++) {
-                        room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
-                    }
+                    room.save();
+                    socketList[socket.handshake.session.room].forEach(function(esocket){
+                        esocket.emit('playlistClientUpdate', room);
+                    });
                 }
-                room.save();
-                socket.emit('playlistClientUpdate', room);
+                else {
+                    console.log("room not found", socket.handshake.session.room);
+                }
             });
     });
 
     socket.on('nextSong', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
                 console.log("next");
@@ -129,13 +142,15 @@ io.on('connection', function (socket) {
                     room.currentSong = {};
                 }
                 room.save();
-                socket.emit('currentSongClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('currentSongClientUpdate', room);
+                });
             });
     });
     
     socket.on('prevSong', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
                 console.log("prev");
@@ -147,8 +162,32 @@ io.on('connection', function (socket) {
                     room.currentSong = {};
                 }
                 room.save();
-                socket.emit('currentSongClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('currentSongClientUpdate', room);
+                });
             });
+    });
+    
+    socket.on('joinRoom', function (json) {
+        socket.handshake.session.room = json.roomName;
+        socket.handshake.session.uid = guid();
+        Room.findOne({
+           roomName: json.roomName
+        },
+        function(err, room) {
+            if(room) {
+                if (room.hostUser == null) {
+                    room.hostUser = socket.handshake.session.uid;
+                    room.save();
+                    socketList[socket.handshake.session.room] = [socket];
+                }
+                else {
+                    room.clientUsers.push(socket.handshake.session.uid);
+                    room.save();
+                    socketList[socket.handshake.session.room].push(socket);
+                }
+            }
+        });
     });
 });
 
@@ -235,8 +274,8 @@ app.post('/createRoom', function (request, response) {
             } else {
                 var newRoom = new Room;
                 newRoom.roomName = request.body.roomName;
-                newRoom.hostUser = request.body.username;
                 newRoom.password = request.body.password;
+                newRoom.hostUser = null;
                 newRoom.availableSongs = [];
                 newRoom.upcomingSongs = [];
                 newRoom.playedSongs = [];
@@ -252,11 +291,19 @@ app.post('/createRoom', function (request, response) {
                     }
                 });
                 console.log(newRoom);
-                request.session.username = (request.body.username);
-                request.session.room = (request.body.roomName);
                 response.status(201);
                 response.send(newRoom);
                 return response.end();
             }
-        });
+    });
 });
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
