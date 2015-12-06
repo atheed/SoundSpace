@@ -215,7 +215,9 @@ io.on('connection', function (socket) {
                     }
                 }
                 room.save();
-                socket.emit('playlistClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
             }
         });
     });
@@ -232,7 +234,9 @@ io.on('connection', function (socket) {
                     }
                 }
                 room.save();
-                socket.emit('playlistClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
             }
         });
     });
