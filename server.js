@@ -31,22 +31,27 @@ var roomSchema = mongoose.Schema({
     upcomingSongs: [{
         title: String,
         artist: String,
-        album: String
+        album: String,
+        score: Number
     }],
     playedSongs: [{
         title: String,
         artist: String,
-        album: String
+        album: String,
+        score: Number
     }],
     currentSong: {
         title: String,
         artist: String,
-        album: String
+        album: String,
+        score: Number
+        
     },
     availableSongs: [{
         title: String,
         artist: String,
-        album: String
+        album: String,
+        score: Number
     }]
 });
 var Room = mongoose.model('Room', roomSchema);
@@ -133,7 +138,6 @@ io.on('connection', function (socket) {
                 roomName: socket.handshake.session.room
             },
             function (err, room) {
-                console.log("next");
                 if (room.upcomingSongs.length > 0) {
                     room.playedSongs.push(room.currentSong);
                     room.currentSong = room.upcomingSongs.shift();
@@ -143,7 +147,7 @@ io.on('connection', function (socket) {
                 }
                 room.save();
                 socketList[socket.handshake.session.room].forEach(function(esocket){
-                    esocket.emit('currentSongClientUpdate', room);
+                    esocket.emit('playlistClientUpdate', room);
                 });
             });
     });
@@ -153,7 +157,6 @@ io.on('connection', function (socket) {
                 roomName: socket.handshake.session.room
             },
             function (err, room) {
-                console.log("prev");
                 if (room.upcomingSongs.length > 0) {
                     room.upcomingSongs.unshift(room.currentSong);
                     room.currentSong = room.playedSongs.pop();
@@ -163,7 +166,7 @@ io.on('connection', function (socket) {
                 }
                 room.save();
                 socketList[socket.handshake.session.room].forEach(function(esocket){
-                    esocket.emit('currentSongClientUpdate', room);
+                    esocket.emit('playlistClientUpdate', room);
                 });
             });
     });
@@ -189,7 +192,65 @@ io.on('connection', function (socket) {
             }
         });
     });
+    
+    socket.on("getPlaylist", function(json) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                socket.emit('playlistClientUpdate', room);
+            }
+        });
+    });
+    
+    socket.on("upvote", function(title) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                console.log(title);
+                for (i=0; i<room.upcomingSongs.length;i++) {
+                    if (title == room.upcomingSongs[i].title) {
+                        room.upcomingSongs[i].score++;
+                        room.upcomingSongs.sort(compare);
+                    }
+                }
+                room.save();
+                socket.emit('playlistClientUpdate', room);
+            }
+        });
+    });
+    socket.on("downvote", function(title) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                console.log(title);
+                for (i=0; i<room.upcomingSongs.length;i++) {
+                    if (title == room.upcomingSongs[i].title) {
+                        room.upcomingSongs[i].score--;
+                        room.upcomingSongs.sort(compare);
+                    }
+                }
+                room.save();
+                socket.emit('playlistClientUpdate', room);
+            }
+        });
+    });
 });
+
+function compare(a, b) {
+  if (a.score > b.score) {
+    return -1;
+  }
+  if (a.score < b.score) {
+    return 1;
+  }
+  return 0;
+}
 
 app.get('/id3-minimized.js', function (req, res) {
     res.sendfile('./static/id3-minimized.js');
@@ -222,7 +283,6 @@ app.post('/joinRoom', function (request, response) {
                 console.log("room joined");
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
-                room.clientUsers.push(request.body.username)
                 room.save(function (err) {
                     if (err) {
                         response.status(500);

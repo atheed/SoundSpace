@@ -110,6 +110,7 @@ $(document).on('click', '.upvoteButton', function () {
     $this.addClass("undoUpvoteButton");
     var del = this.id.slice(0, -1) + 'd';
     document.getElementById(del).style.display = "none";
+    socket.emit("upvote", $this.parent().prev().prev().prev().html());
 });
 
 
@@ -138,6 +139,7 @@ $(document).on('click', '.downvoteButton', function () {
     $this.addClass("undoDownvoteButton");
     var del = this.id.slice(0, -1) + 'u';
     document.getElementById(del).style.display = "none";
+    socket.emit("downvote", $this.parent().prev().prev().prev().html());
 });
 
 
@@ -206,7 +208,7 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
                 $("#playlist").show();
                 getFileInput();
                 socket.emit("joinRoom",{roomName: roomNameIn});
-                //TODO: Trigger Join to the newly created room
+                socket.emit("getPlaylist");
             },
             400: function () {
                 $("#errorField").text("Room Name already exists. Select a different room name.");
@@ -240,9 +242,11 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
             200: function (data) {
                 $("#landing").hide();
                 $("#playlist").show();
+                $("#currently_playing").hide();
                 console.log(data);
                 console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
                 socket.emit("joinRoom",{roomName: roomNameInput});
+                socket.emit("getPlaylist");
             },
             400: function () {
                 $("#errorField").text("Room not found.");
@@ -337,7 +341,8 @@ function writeSongName(i) {
     songinfo[i] = {
         "title": tags.title,
         "album": tags.album,
-        "artist": tags.artist
+        "artist": tags.artist,
+        "score": 0
     }
     console.log(songinfo[i]);
     if (i == songinfo.length-1) {
@@ -362,5 +367,45 @@ function entryFieldsFilled() {
 }
 
 socket.on("playlistClientUpdate", function(room) {
+    $("#songPlaylist").empty();
+    var counter = 0;
+    for (i=0;i<room.playedSongs.length;i++) {
+        insertPlayedSong(room.playedSongs[i].title,room.playedSongs[i].artist,room.playedSongs[i].album, counter);
+        counter++;
+    }
+    insertPlayedSong(room.currentSong.title,room.currentSong.artist,room.currentSong.album, counter);
+    counter++;
+    for (i=0;i<room.upcomingSongs.length;i++) {
+        insertSong(room.upcomingSongs[i].title,room.upcomingSongs[i].artist,room.upcomingSongs[i].album, counter);
+        counter++;
+    }
     console.log(room);
 });
+
+function insertSong(title, artist, album, i) {
+    $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        <td>
+            <button type="button" id="neveru" class="voteBtn upvoteButton">Upvote</button> 
+            <button type="button" id="neverd" class="voteBtn downvoteButton" style.display="block">Downvote</button>
+        </td>
+        </tr>
+        <tr class='child-row'`+i+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+    </tr>`);
+}
+
+function insertPlayedSong(title, artist, album, i) {
+    $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        </tr>
+        <tr class='child-row'`+i+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+    </tr>`);
+}
