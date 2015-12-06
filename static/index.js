@@ -176,6 +176,7 @@ $(document).on('click', '#nextSong', function() {
     if (curr != playlist.length - 1) {
         curr += 1;
         replaceAudioElement($("audio").prop("volume"));
+        socket.emit("nextSong",{roomName: "demo"});
     }
 });
 
@@ -183,6 +184,7 @@ $(document).on('click', '#prevSong', function () {
     if (curr != 0) {
         curr -= 1;
         replaceAudioElement($("audio").prop("volume"));
+        socket.emit("prevSong",{roomName: "demo"});
     }
 });
 
@@ -251,8 +253,7 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
 };
 
 var playlist = [];
-var songs = [];
-var songnames = [];
+var songinfo = [];
 var songurls = [];
 var songpaths = [];
 var curr = -1;
@@ -260,15 +261,14 @@ var curr = -1;
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
     fileInput.addEventListener('change', function (evt) {
-        songs = [];
-        songnames = [];
+        songinfo = [];
         songurls = [];
         songpaths = [];
         for (i = 0; i < fileInput.files.length; i++) {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
-            songnames.push("");
+            songinfo.push("");
         }
         readFile(fileInput.files, 0);
     });
@@ -301,19 +301,13 @@ function readFile(files, i) {
 }
 
 function sendUpdate() {
-    for (j = 0; j < songnames.length; j++) {
-        songs.push({
-            songName: songnames[j],
-            songPath: songpaths[j]
-        })
-    }
-    console.log(songs);
     socket.emit("playlistUpdate", {
-        songs: songs,
+        songs: songinfo,
         updateType: "add",
         roomName: "demo"
     });
 }
+
 
 function replaceAudioElement(volume) {
     $("audio").remove();
@@ -325,6 +319,7 @@ function replaceAudioElement(volume) {
         if (curr != playlist.length - 1) {
             curr += 1;
             replaceAudioElement($("audio").prop("volume"));
+            socket.emit("nextSong",{roomName: "demo"});
         }
     });
 
@@ -337,8 +332,13 @@ function replaceAudioElement(volume) {
 function writeSongName(i) {
     var url = songurls[i];
     var tags = ID3.getAllTags(url);
-    songnames[i] = tags.title;
-    if (i == songnames.length-1) {
+    songinfo[i] = {
+        "title": tags.title,
+        "album": tags.album,
+        "artist": tags.artist
+    }
+    console.log(songinfo[i]);
+    if (i == songinfo.length-1) {
         sendUpdate();
     }
 }

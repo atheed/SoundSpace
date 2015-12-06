@@ -29,20 +29,24 @@ var roomSchema = mongoose.Schema({
     hostUser: String,
     clientUsers: [String],
     upcomingSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String
     }],
     playedSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String
     }],
     currentSong: {
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String
     },
     availableSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String
     }]
 });
 var Room = mongoose.model('Room', roomSchema);
@@ -89,7 +93,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playlistUpdate', function (json) {
-        console.log(json);
         Room.findOne({
                 roomName: json.roomName
             },
@@ -97,8 +100,9 @@ io.on('connection', function (socket) {
                 if (json.updateType === "add") {
                     for (i = 0; i < json.songs.length; i++) {
                         room.upcomingSongs.push(json.songs[i]);
-                        if (room.currentSong === {}) {
-                            room.currentSong = room.upcomingSongs.pop();
+                        console.log(room.currentSong, room.currentSong == "null");
+                        if (room.currentSong == "null") {
+                            room.currentSong = room.upcomingSongs.shift();
                         }
                     }
                 } else if (json.updateType === "remove") {
@@ -111,14 +115,33 @@ io.on('connection', function (socket) {
             });
     });
 
-    socket.on('playNextSong', function (json) {
+    socket.on('nextSong', function (json) {
         Room.findOne({
                 roomName: json.roomName
             },
             function (err, room) {
+                console.log("next");
                 if (room.upcomingSongs.length > 0) {
                     room.playedSongs.push(room.currentSong);
-                    room.currentSong = room.upcomingSongs.pop();
+                    room.currentSong = room.upcomingSongs.shift();
+                } else {
+                    room.playedSongs.push(room.currentSong);
+                    room.currentSong = {};
+                }
+                room.save();
+                socket.emit('currentSongClientUpdate', room);
+            });
+    });
+    
+    socket.on('prevSong', function (json) {
+        Room.findOne({
+                roomName: json.roomName
+            },
+            function (err, room) {
+                console.log("prev");
+                if (room.upcomingSongs.length > 0) {
+                    room.upcomingSongs.unshift(room.currentSong);
+                    room.currentSong = room.playedSongs.pop();
                 } else {
                     room.playedSongs.push(room.currentSong);
                     room.currentSong = {};
