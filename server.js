@@ -32,26 +32,30 @@ var roomSchema = mongoose.Schema({
         title: String,
         artist: String,
         album: String,
-        score: Number
+        score: Number,
+        index: Number
     }],
     playedSongs: [{
         title: String,
         artist: String,
         album: String,
-        score: Number
+        score: Number,
+        index: Number
     }],
     currentSong: {
         title: String,
         artist: String,
         album: String,
-        score: Number
+        score: Number,
+        index: Number
         
     },
     availableSongs: [{
         title: String,
         artist: String,
         album: String,
-        score: Number
+        score: Number,
+        index: Number
     }]
 });
 var Room = mongoose.model('Room', roomSchema);
@@ -141,9 +145,6 @@ io.on('connection', function (socket) {
                 if (room.upcomingSongs.length > 0) {
                     room.playedSongs.push(room.currentSong);
                     room.currentSong = room.upcomingSongs.shift();
-                } else {
-                    room.playedSongs.push(room.currentSong);
-                    room.currentSong = {};
                 }
                 room.save();
                 socketList[socket.handshake.session.room].forEach(function(esocket){
@@ -157,12 +158,9 @@ io.on('connection', function (socket) {
                 roomName: socket.handshake.session.room
             },
             function (err, room) {
-                if (room.upcomingSongs.length > 0) {
+                if (room.playedSongs.length > 0) {
                     room.upcomingSongs.unshift(room.currentSong);
                     room.currentSong = room.playedSongs.pop();
-                } else {
-                    room.playedSongs.push(room.currentSong);
-                    room.currentSong = {};
                 }
                 room.save();
                 socketList[socket.handshake.session.room].forEach(function(esocket){
@@ -210,7 +208,6 @@ io.on('connection', function (socket) {
         },
         function(err, room) {
             if(room) {
-                console.log(title);
                 for (i=0; i<room.upcomingSongs.length;i++) {
                     if (title == room.upcomingSongs[i].title) {
                         room.upcomingSongs[i].score++;
@@ -228,7 +225,6 @@ io.on('connection', function (socket) {
         },
         function(err, room) {
             if(room) {
-                console.log(title);
                 for (i=0; i<room.upcomingSongs.length;i++) {
                     if (title == room.upcomingSongs[i].title) {
                         room.upcomingSongs[i].score--;
@@ -276,7 +272,7 @@ app.post('/joinRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "ROOM_NOT_FOUND"
                 });
-                console.log("roomnotfound");
+                console.log("room not found");
                 return response.end();
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
