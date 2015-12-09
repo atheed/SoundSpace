@@ -436,10 +436,13 @@ function insertSong(title, artist, album, i) {
             <button type="button" id=`+iddownvote+` class="voteBtn undoDownvoteButton" style.display="block">Undo Downvote</button>
         </td>
         </tr>
+        /*
         <tr class='child-row'`+i.toString()+` style='display: none;'>
             <td></td><td></td><td></td>
             <td>Suggested by host</td>
-        </tr>`);
+        </tr>
+        */
+    `);
     }
     
 }
@@ -451,13 +454,13 @@ function insertPlayedSong(title, artist, album, i) {
         <td>`+title+`</td>
         <td>`+artist+`</td>
         <td>`+album+`</td>
-        <td>
-            <button type="button" id=`+idupvote+` class="voteBtn upvoteButton">Upvote</button> 
-            <button type="button" id=`+iddownvote+` class="voteBtn downvoteButton">Downvote</button>
-        </td>
+        <td colspan=2></td>
         </tr>
+        /*
         <tr class='child-row'`+i+` style='display: none;'>
             <td></td><td></td><td></td>
             <td>Suggested by host</td>
-    </tr>`);
+        </tr>
+        */
+    `);
 }
