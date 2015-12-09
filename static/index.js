@@ -105,12 +105,10 @@ $(document).on('click', '.backButton', function () {
  */
 $(document).on('click', '.upvoteButton', function () {
     var $this = $(this);
-    $this.text('Undo upvote');
-    $this.removeClass("upvoteButton");
-    $this.addClass("undoUpvoteButton");
-    var del = this.id.slice(0, -1) + 'd';
-    document.getElementById(del).style.display = "none";
-    socket.emit("upvote", $this.parent().prev().prev().prev().html());
+    if (voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] == 0) {
+        voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] = 1;
+        socket.emit("upvote", $this.parent().prev().prev().prev().html());
+    }
 });
 
 
@@ -120,11 +118,10 @@ $(document).on('click', '.upvoteButton', function () {
  */
 $(document).on('click', '.undoUpvoteButton', function () {
     var $this = $(this);
-    $this.text('Upvote');
-    $this.removeClass("undoUpvoteButton");
-    $this.addClass("upvoteButton");
-    var del = this.id.slice(0, -1) + 'd';
-    document.getElementById(del).style.display = "inline";
+    if (voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] == 1) {
+        voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] = 0;
+        socket.emit("downvote", $this.parent().prev().prev().prev().html());
+    }
 });
 
 
@@ -134,12 +131,10 @@ $(document).on('click', '.undoUpvoteButton', function () {
  */
 $(document).on('click', '.downvoteButton', function () {
     var $this = $(this);
-    $this.text('Undo downvote');
-    $this.removeClass("downvoteButton");
-    $this.addClass("undoDownvoteButton");
-    var del = this.id.slice(0, -1) + 'u';
-    document.getElementById(del).style.display = "none";
-    socket.emit("downvote", $this.parent().prev().prev().prev().html());
+    if (voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] == 0) {
+        voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] = -1;
+        socket.emit("downvote", $this.parent().prev().prev().prev().html());
+    }
 });
 
 
@@ -149,11 +144,10 @@ $(document).on('click', '.downvoteButton', function () {
  */
 $(document).on('click', '.undoDownvoteButton', function () {
     var $this = $(this);
-    $this.text('Downvote');
-    $this.removeClass("undoDownvoteButton");
-    $this.addClass("downvoteButton");
-    var del = this.id.slice(0, -1) + 'u';
-    document.getElementById(del).style.display = "inline";
+    if (voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] == -1) {
+        voted[playlistorder[$this.parent().prev().prev().prev().attr("index")]] = 0;
+        socket.emit("upvote", $this.parent().prev().prev().prev().html());
+    }
 });
 
 /* Shows/hides the person who suggested the song
@@ -268,6 +262,7 @@ var songpaths = [];
 var curr = -1;
 var index = 0;
 var counter = 0;
+var voted = [];
 //Handles dealing with file Input
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
@@ -292,6 +287,7 @@ function readFile(files, i) {
         return function (e) {
             songpaths.push(e.target.result.toString());
             playlist.push(e.target.result.toString());
+            voted.push(0);
             ID3.loadTags(songurls[i], function () {
                 writeSongName(i);
             }, {
@@ -378,25 +374,31 @@ socket.on("playlistClientUpdate", function(room) {
     var counter = 0;
     playlistorder = [];
     for (i=0;i<room.playedSongs.length;i++) {
-        insertPlayedSong(room.playedSongs[i].title,room.playedSongs[i].artist,room.playedSongs[i].album, counter);
         playlistorder.push(room.playedSongs[i].index);
+        insertPlayedSong(room.playedSongs[i].title,room.playedSongs[i].artist,room.playedSongs[i].album, counter);
         counter++;
     }
     if(room.currentSong != null) {
-        insertPlayedSong(room.currentSong.title,room.currentSong.artist,room.currentSong.album, counter);
         playlistorder.push(room.currentSong.index);
+        insertPlayedSong(room.currentSong.title,room.currentSong.artist,room.currentSong.album, counter);
         counter++;
     }
     for (i=0;i<room.upcomingSongs.length;i++) {
-        insertSong(room.upcomingSongs[i].title,room.upcomingSongs[i].artist,room.upcomingSongs[i].album, counter);
         playlistorder.push(room.upcomingSongs[i].index);
+        insertSong(room.upcomingSongs[i].title,room.upcomingSongs[i].artist,room.upcomingSongs[i].album, counter);
         counter++;
     }
+    
+});
+
+socket.on("roomClosed", function() {
+    location.reload();
 });
 
 function insertSong(title, artist, album, i) {
-    $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
-        <td>`+title+`</td>
+    if (voted[playlistorder[i]] == 0) {
+        $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td index=`+i+`>`+title+`</td>
         <td>`+artist+`</td>
         <td>`+album+`</td>
         <td>
@@ -404,10 +406,40 @@ function insertSong(title, artist, album, i) {
             <button type="button" id="neverd" class="voteBtn downvoteButton" style.display="block">Downvote</button>
         </td>
         </tr>
-        <tr class='child-row'`+i+` style='display: none;'>
+        <tr class='child-row'`+i.toString()+` style='display: none;'>
             <td></td><td></td><td></td>
             <td>Suggested by host</td>
-    </tr>`);
+        </tr>`);
+    }
+    else if (voted[playlistorder[i]] == 1){
+        $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td index=`+i+`>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        <td>
+            <button type="button" id="neveru" class="voteBtn undoUpvoteButton">Undo Upvote</button> 
+        </td>
+        </tr>
+        <tr class='child-row'`+i.toString()+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+        </tr>`);
+    }
+    else {
+        $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td index=`+i+`>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        <td>
+            <button type="button" id="neverd" class="voteBtn undoDownvoteButton" style.display="block">Undo Downvote</button>
+        </td>
+        </tr>
+        <tr class='child-row'`+i.toString()+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+        </tr>`);
+    }
+    
 }
 
 function insertPlayedSong(title, artist, album, i) {

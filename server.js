@@ -126,6 +126,7 @@ io.on('connection', function (socket) {
                             room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
                         }
                     }
+                    room.upcomingSongs.sort(compare);
                     room.save();
                     socketList[socket.handshake.session.room].forEach(function(esocket){
                         esocket.emit('playlistClientUpdate', room);
@@ -237,6 +238,32 @@ io.on('connection', function (socket) {
                 socketList[socket.handshake.session.room].forEach(function(esocket){
                     esocket.emit('playlistClientUpdate', room);
                 });
+            }
+        });
+    });
+    
+    socket.on('disconnect', function () {
+        console.log("user disconnected");
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room && room.hostUser == socket.handshake.session.uid) {
+                room.remove(function(err,removed) {
+                    socketList[socket.handshake.session.room].forEach(function(esocket){
+                        esocket.emit('roomClosed');
+                    });
+                });
+            }
+            else if (room) {
+                var index = room.clientUsers.indexOf(socket.handshake.session.uid);
+                if (index > -1) {
+                    room.currentUsers.splice(index, 1);
+                    socketList[socket.handshake.session.room].forEach(function(esocket){
+                        esocket.emit('userLeft', {room: room, user: socket.handshake.session.uid});
+                    });
+                    room.save();
+                }
             }
         });
     });
