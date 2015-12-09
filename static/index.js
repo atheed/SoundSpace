@@ -396,14 +396,16 @@ socket.on("roomClosed", function() {
 });
 
 function insertSong(title, artist, album, i) {
+    var idupvote = title.replace(/\s+/g, '') + i + 'u';
+    var iddownvote = title.replace(/\s+/g, '') + i + 'd';
     if (voted[playlistorder[i]] == 0) {
         $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
         <td index=`+i+`>`+title+`</td>
         <td>`+artist+`</td>
         <td>`+album+`</td>
         <td>
-            <button type="button" id="neveru" class="voteBtn upvoteButton">Upvote</button> 
-            <button type="button" id="neverd" class="voteBtn downvoteButton" style.display="block">Downvote</button>
+            <button type="button" id=`+idupvote+` class="voteBtn upvoteButton">Upvote</button> 
+            <button type="button" id=`+iddownvote+` class="voteBtn downvoteButton" style.display="block">Downvote</button>
         </td>
         </tr>
         <tr class='child-row'`+i.toString()+` style='display: none;'>
@@ -417,7 +419,7 @@ function insertSong(title, artist, album, i) {
         <td>`+artist+`</td>
         <td>`+album+`</td>
         <td>
-            <button type="button" id="neveru" class="voteBtn undoUpvoteButton">Undo Upvote</button> 
+            <button type="button" id=`+idupvote+` class="voteBtn undoUpvoteButton">Undo Upvote</button> 
         </td>
         </tr>
         <tr class='child-row'`+i.toString()+` style='display: none;'>
@@ -431,7 +433,7 @@ function insertSong(title, artist, album, i) {
         <td>`+artist+`</td>
         <td>`+album+`</td>
         <td>
-            <button type="button" id="neverd" class="voteBtn undoDownvoteButton" style.display="block">Undo Downvote</button>
+            <button type="button" id=`+iddownvote+` class="voteBtn undoDownvoteButton" style.display="block">Undo Downvote</button>
         </td>
         </tr>
         <tr class='child-row'`+i.toString()+` style='display: none;'>
@@ -443,10 +445,16 @@ function insertSong(title, artist, album, i) {
 }
 
 function insertPlayedSong(title, artist, album, i) {
+    var idupvote = title.replace(/\s+/g, '') + i + 'u';
+    var iddownvote = title.replace(/\s+/g, '') + i + 'd';
     $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
         <td>`+title+`</td>
         <td>`+artist+`</td>
         <td>`+album+`</td>
+        <td>
+            <button type="button" id=`+idupvote+` class="voteBtn upvoteButton">Upvote</button> 
+            <button type="button" id=`+iddownvote+` class="voteBtn downvoteButton">Downvote</button>
+        </td>
         </tr>
         <tr class='child-row'`+i+` style='display: none;'>
             <td></td><td></td><td></td>
