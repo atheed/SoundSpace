@@ -110,6 +110,7 @@ $(document).on('click', '.upvoteButton', function () {
     $this.addClass("undoUpvoteButton");
     var del = this.id.slice(0, -1) + 'd';
     document.getElementById(del).style.display = "none";
+    socket.emit("upvote", $this.parent().prev().prev().prev().html());
 });
 
 
@@ -138,6 +139,7 @@ $(document).on('click', '.downvoteButton', function () {
     $this.addClass("undoDownvoteButton");
     var del = this.id.slice(0, -1) + 'u';
     document.getElementById(del).style.display = "none";
+    socket.emit("downvote", $this.parent().prev().prev().prev().html());
 });
 
 
@@ -172,18 +174,21 @@ $(function () {
  *   which may be none...
  */
 
-$(document).on('click', '#nextSong', function () {
-    console.log(curr, playlist.length);
+$(document).on('click', '#nextSong', function() {
     if (curr != playlist.length - 1) {
-        curr += 1;
+        curr++;
+        index = playlistorder[curr];
         replaceAudioElement($("audio").prop("volume"));
+        socket.emit("nextSong",{roomName: "demo"});
     }
 });
 
 $(document).on('click', '#prevSong', function () {
     if (curr != 0) {
-        curr -= 1;
+        curr--;
+        index = playlistorder[curr];
         replaceAudioElement($("audio").prop("volume"));
+        socket.emit("prevSong",{roomName: "demo"});
     }
 });
 
@@ -204,7 +209,8 @@ function createRoom(roomNameIn, userNameIn, passwordIn) {
                 $("#create").hide();
                 $("#playlist").show();
                 getFileInput();
-                //TODO: Trigger Join to the newly created room
+                socket.emit("joinRoom",{roomName: roomNameIn});
+                socket.emit("getPlaylist");
             },
             400: function () {
                 $("#errorField").text("Room Name already exists. Select a different room name.");
@@ -238,8 +244,11 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
             200: function (data) {
                 $("#landing").hide();
                 $("#playlist").show();
+                $("#currently_playing").hide();
                 console.log(data);
                 console.log(userNameInput + " logged into: " + roomNameInput + " successfully.");
+                socket.emit("joinRoom",{roomName: roomNameInput});
+                socket.emit("getPlaylist");
             },
             400: function () {
                 $("#errorField").text("Room not found.");
@@ -252,24 +261,25 @@ function joinRoom(roomNameInput, userNameInput, passwordInput) {
 };
 
 var playlist = [];
-var songs = [];
-var songnames = [];
+var playlistorder = [];
+var songinfo = [];
 var songurls = [];
 var songpaths = [];
 var curr = -1;
+var index = 0;
+var counter = 0;
 //Handles dealing with file Input
 function getFileInput() {
     var fileInput = document.getElementById("FileInput");
     fileInput.addEventListener('change', function (evt) {
-        songs = [];
-        songnames = [];
+        songinfo = [];
         songurls = [];
         songpaths = [];
         for (i = 0; i < fileInput.files.length; i++) {
             var file = fileInput.files[i],
                 url = file.urn || file.name;
             songurls.push(url);
-            songnames.push("");
+            songinfo.push("");
         }
         readFile(fileInput.files, 0);
     });
@@ -302,30 +312,26 @@ function readFile(files, i) {
 }
 
 function sendUpdate() {
-    for (j = 0; j < songnames.length; j++) {
-        songs.push({
-            songName: songnames[j],
-            songPath: songpaths[j]
-        })
-    }
-    console.log(songs);
     socket.emit("playlistUpdate", {
-        songs: songs,
+        songs: songinfo,
         updateType: "add",
         roomName: "demo"
     });
 }
 
+
 function replaceAudioElement(volume) {
     $("audio").remove();
     $(".first").after("<audio controls autoplay='autoplay'></audio>");
-    $("audio").append("<source id='player' src='" + playlist[curr] + "' type='audio/mp3'>");
+    $("audio").append("<source id='player' src='" + playlist[index] + "' type='audio/mp3'>");
     $("audio").append("Your browser does not support this music player.");
     $("audio").prop("volume", volume);
     $("audio").on("ended", function () {
         if (curr != playlist.length - 1) {
-            curr += 1;
+            curr++;
+            index = playlistorder[curr];
             replaceAudioElement($("audio").prop("volume"));
+            socket.emit("nextSong",{roomName: "demo"});
         }
     });
 
@@ -338,8 +344,15 @@ function replaceAudioElement(volume) {
 function writeSongName(i) {
     var url = songurls[i];
     var tags = ID3.getAllTags(url);
-    songnames[i] = tags.title;
-    if (i == songnames.length-1) {
+    songinfo[i] = {
+        "title": tags.title,
+        "album": tags.album,
+        "artist": tags.artist,
+        "score": 0,
+        "index": counter
+    }
+    counter++;
+    if (i == songinfo.length-1) {
         sendUpdate();
     }
 }
@@ -358,4 +371,53 @@ function entryFieldsFilled() {
         return false;
     }
     return true;
+}
+
+socket.on("playlistClientUpdate", function(room) {
+    $("#songPlaylist").empty();
+    var counter = 0;
+    playlistorder = [];
+    for (i=0;i<room.playedSongs.length;i++) {
+        insertPlayedSong(room.playedSongs[i].title,room.playedSongs[i].artist,room.playedSongs[i].album, counter);
+        playlistorder.push(room.playedSongs[i].index);
+        counter++;
+    }
+    if(room.currentSong != null) {
+        insertPlayedSong(room.currentSong.title,room.currentSong.artist,room.currentSong.album, counter);
+        playlistorder.push(room.currentSong.index);
+        counter++;
+    }
+    for (i=0;i<room.upcomingSongs.length;i++) {
+        insertSong(room.upcomingSongs[i].title,room.upcomingSongs[i].artist,room.upcomingSongs[i].album, counter);
+        playlistorder.push(room.upcomingSongs[i].index);
+        counter++;
+    }
+});
+
+function insertSong(title, artist, album, i) {
+    $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        <td>
+            <button type="button" id="neveru" class="voteBtn upvoteButton">Upvote</button> 
+            <button type="button" id="neverd" class="voteBtn downvoteButton" style.display="block">Downvote</button>
+        </td>
+        </tr>
+        <tr class='child-row'`+i+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+    </tr>`);
+}
+
+function insertPlayedSong(title, artist, album, i) {
+    $("#songPlaylist").append(`<tr class ='parent' id='row'`+i+`>
+        <td>`+title+`</td>
+        <td>`+artist+`</td>
+        <td>`+album+`</td>
+        </tr>
+        <tr class='child-row'`+i+` style='display: none;'>
+            <td></td><td></td><td></td>
+            <td>Suggested by host</td>
+    </tr>`);
 }

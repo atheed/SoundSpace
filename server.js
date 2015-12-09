@@ -29,20 +29,33 @@ var roomSchema = mongoose.Schema({
     hostUser: String,
     clientUsers: [String],
     upcomingSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String,
+        score: Number,
+        index: Number
     }],
     playedSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String,
+        score: Number,
+        index: Number
     }],
     currentSong: {
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String,
+        score: Number,
+        index: Number
+        
     },
     availableSongs: [{
-        songName: String,
-        songPath: String
+        title: String,
+        artist: String,
+        album: String,
+        score: Number,
+        index: Number
     }]
 });
 var Room = mongoose.model('Room', roomSchema);
@@ -55,8 +68,11 @@ var sess = session({
     secret: 'csc301group',
     cookie: {
         secure: true
-    }
-})
+    },
+    saveUninitialized: true,
+    resave: true
+});
+    
 app.use(sess);
 io.use(ios(sess));
 
@@ -66,12 +82,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+var socketList = {};
+
 io.on('connection', function (socket) {
     console.log("a user connected");
     console.log(socket.handshake.session);
     socket.on('availableSongUpdate', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
                 if (json.updateType === "add") {
@@ -84,50 +102,155 @@ io.on('connection', function (socket) {
                     }
                 }
                 room.save();
-                io.emit('availableSongClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('availableSongClientUpdate', room);
+                });
             });
     });
 
     socket.on('playlistUpdate', function (json) {
-        console.log(json);
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
-                if (json.updateType === "add") {
-                    for (i = 0; i < json.songs.length; i++) {
-                        room.upcomingSongs.push(json.songs[i]);
-                        if (room.currentSong === {}) {
-                            room.currentSong = room.upcomingSongs.pop();
+                if(room) {
+                    if (json.updateType === "add") {
+                        for (i = 0; i < json.songs.length; i++) {
+                            room.upcomingSongs.push(json.songs[i]);
+                            if (room.currentSong == "null") {
+                                room.currentSong = room.upcomingSongs.shift();
+                            }
+                        }
+                    } else if (json.updateType === "remove") {
+                        for (i = 0; i < json.songs.length; i++) {
+                            room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
                         }
                     }
-                } else if (json.updateType === "remove") {
-                    for (i = 0; i < json.songs.length; i++) {
-                        room.upcomingSongs.splice(indexOf(json.songs[i]), 1);
-                    }
+                    room.save();
+                    socketList[socket.handshake.session.room].forEach(function(esocket){
+                        esocket.emit('playlistClientUpdate', room);
+                    });
                 }
-                room.save();
-                socket.emit('playlistClientUpdate', room);
+                else {
+                    console.log("room not found", socket.handshake.session.room);
+                }
             });
     });
 
-    socket.on('playNextSong', function (json) {
+    socket.on('nextSong', function (json) {
         Room.findOne({
-                roomName: json.roomName
+                roomName: socket.handshake.session.room
             },
             function (err, room) {
                 if (room.upcomingSongs.length > 0) {
                     room.playedSongs.push(room.currentSong);
-                    room.currentSong = room.upcomingSongs.pop();
-                } else {
-                    room.playedSongs.push(room.currentSong);
-                    room.currentSong = {};
+                    room.currentSong = room.upcomingSongs.shift();
                 }
                 room.save();
-                socket.emit('currentSongClientUpdate', room);
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
             });
     });
+    
+    socket.on('prevSong', function (json) {
+        Room.findOne({
+                roomName: socket.handshake.session.room
+            },
+            function (err, room) {
+                if (room.playedSongs.length > 0) {
+                    room.upcomingSongs.unshift(room.currentSong);
+                    room.currentSong = room.playedSongs.pop();
+                }
+                room.save();
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
+            });
+    });
+    
+    socket.on('joinRoom', function (json) {
+        socket.handshake.session.room = json.roomName;
+        socket.handshake.session.uid = guid();
+        Room.findOne({
+           roomName: json.roomName
+        },
+        function(err, room) {
+            if(room) {
+                if (room.hostUser == null) {
+                    room.hostUser = socket.handshake.session.uid;
+                    room.save();
+                    socketList[socket.handshake.session.room] = [socket];
+                }
+                else {
+                    room.clientUsers.push(socket.handshake.session.uid);
+                    room.save();
+                    socketList[socket.handshake.session.room].push(socket);
+                }
+            }
+        });
+    });
+    
+    socket.on("getPlaylist", function(json) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                socket.emit('playlistClientUpdate', room);
+            }
+        });
+    });
+    
+    socket.on("upvote", function(title) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                for (i=0; i<room.upcomingSongs.length;i++) {
+                    if (title == room.upcomingSongs[i].title) {
+                        room.upcomingSongs[i].score++;
+                        room.upcomingSongs.sort(compare);
+                    }
+                }
+                room.save();
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
+            }
+        });
+    });
+    socket.on("downvote", function(title) {
+        Room.findOne({
+           roomName: socket.handshake.session.room
+        },
+        function(err, room) {
+            if(room) {
+                for (i=0; i<room.upcomingSongs.length;i++) {
+                    if (title == room.upcomingSongs[i].title) {
+                        room.upcomingSongs[i].score--;
+                        room.upcomingSongs.sort(compare);
+                    }
+                }
+                room.save();
+                socketList[socket.handshake.session.room].forEach(function(esocket){
+                    esocket.emit('playlistClientUpdate', room);
+                });
+            }
+        });
+    });
 });
+
+function compare(a, b) {
+  if (a.score > b.score) {
+    return -1;
+  }
+  if (a.score < b.score) {
+    return 1;
+  }
+  return 0;
+}
 
 app.get('/id3-minimized.js', function (req, res) {
     res.sendfile('./static/id3-minimized.js');
@@ -153,14 +276,13 @@ app.post('/joinRoom', function (request, response) {
                 response.send({
                     "ErrorCode": "ROOM_NOT_FOUND"
                 });
-                console.log("roomnotfound");
+                console.log("room not found");
                 return response.end();
             }
             if (room.clientUsers.indexOf(request.body.username) === -1) {
                 console.log("room joined");
                 request.session.username = (request.body.username);
                 request.session.room = (request.body.roomName);
-                room.clientUsers.push(request.body.username)
                 room.save(function (err) {
                     if (err) {
                         response.status(500);
@@ -212,8 +334,8 @@ app.post('/createRoom', function (request, response) {
             } else {
                 var newRoom = new Room;
                 newRoom.roomName = request.body.roomName;
-                newRoom.hostUser = request.body.username;
                 newRoom.password = request.body.password;
+                newRoom.hostUser = null;
                 newRoom.availableSongs = [];
                 newRoom.upcomingSongs = [];
                 newRoom.playedSongs = [];
@@ -229,11 +351,19 @@ app.post('/createRoom', function (request, response) {
                     }
                 });
                 console.log(newRoom);
-                request.session.username = (request.body.username);
-                request.session.room = (request.body.roomName);
                 response.status(201);
                 response.send(newRoom);
                 return response.end();
             }
-        });
+    });
 });
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
