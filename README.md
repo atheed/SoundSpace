@@ -14,3 +14,10 @@ Lives at: http://nodejs-soundspace.rhcloud.com/
 - [mcey](https://github.com/mcey)
 - [iCabala](https://github.com/iCabala)
 - [g2kokaro](https://github.com/g2kokaro)
+
+###Built Using
+- [Node.js](https://nodejs.org/en/) (with [Express](http://expressjs.com/en/index.html))
+- [Socket.IO](http://socket.io/)
+- [MongoDB](https://www.mongodb.org/) (with [Mongoose](http://mongoosejs.com/))
+- A little bit of [Bootstrap](http://getbootstrap.com/)
+- HTML + CSS + JavaScript (with [jQuery](https://jquery.com/))
