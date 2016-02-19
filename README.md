@@ -21,3 +21,6 @@ Lives at: http://nodejs-soundspace.rhcloud.com/
 - [MongoDB](https://www.mongodb.org/) (with [Mongoose](http://mongoosejs.com/))
 - A little bit of [Bootstrap](http://getbootstrap.com/)
 - HTML + CSS + JavaScript (with [jQuery](https://jquery.com/))
+
+##License
+[MIT License](LICENSE.md)
